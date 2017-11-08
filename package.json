@@ -4,13 +4,10 @@
   "description": "Scrape owners files",
   "main": "dist/bundle.js",
   "scripts": {
-    "build2": "npm run clean && babel src --out-dir dist",
-    "build": "npm run clean && npm run build:client",
+    "build": "npm run clean && babel src --out-dir dist",
+    "start": "npm run build -- --watch",
     "clean": "rimraf dist",
-    "start": "npm run clean && npm run build:client:watch",
-    "test": "jest",
-    "build:client": "NODE_ENV=production webpack --optimize-minimize --define process.env.NODE_ENV=\"'production'\"",
-    "build:client:watch": "webpack --progress --watch"
+    "test": "jest"
   },
   "dependencies": {
     "node-fetch-json": "0.0.3",
@@ -20,14 +17,11 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-dynamic-import-webpack": "^1.0.1",
     "babel-preset-airbnb": "^2.4.0",
     "fast-async": "^6.3.0",
     "jest": "^21.2.1",
-    "rimraf": "^2.6.2",
-    "webpack": "^3.8.1"
+    "rimraf": "^2.6.2"
   }
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import git from './git'
 import config from './config'
 import getOwnershipMap from './getOwnershipMap'

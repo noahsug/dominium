@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var _git = require('./git');
 
 var _git2 = _interopRequireDefault(_git);
