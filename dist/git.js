@@ -315,7 +315,7 @@ Function.prototype.$asyncbind = function () {
 
 function getChangedFiles() {
   return new Promise(resolve => {
-    (0, _simpleGit2['default'])(_config.root).show(['--oneline', '--name-only'], (err, result) => {
+    (0, _simpleGit2['default'])(_config.gitPath).show(['--oneline', '--name-only'], (err, result) => {
       resolve(result.split('\n').slice(1, -1));
     });
   });
@@ -335,7 +335,7 @@ function init() {
 function getGitInfo() {
   const gitInfo = {};
   return new Promise(resolve => {
-    (0, _simpleGit2['default'])(_config.root).raw(['log', '--oneline', '-2'], (err, result) => {
+    (0, _simpleGit2['default'])(_config.gitPath).raw(['log', '--oneline', '-2'], (err, result) => {
       const commits = result.split('\n');
       gitInfo.commits = {
         change: commits[0].split(' ')[0],
@@ -353,7 +353,7 @@ function getGitInfo() {
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
   if (_underscore2['default'].isEmpty(gitInfo)) throw new Error('git.init() never called');
   return new Promise(resolve => {
-    (0, _simpleGit2['default'])(_config.root).checkoutBranch(String(gitInfo.branch) + '-' + String(branchSuffix), gitInfo.commits.base).checkout([gitInfo.commits.change, ...pr.files]).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix)).exec(resolve);
+    (0, _simpleGit2['default'])(_config.gitPath).checkoutBranch(String(gitInfo.branch) + '-' + String(branchSuffix), gitInfo.commits.base).checkout([gitInfo.commits.change, ...pr.files]).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix)).exec(resolve);
   });
 }
 

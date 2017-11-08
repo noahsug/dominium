@@ -317,7 +317,7 @@ exports['default'] = function () {
   function getOwnershipMap(changedFiles) {
     return new Promise(function ($return, $error) {
       var results, ownershipMap, files;
-      return (0, _ripgrepJs2['default'])(_config.root, { regex: '.', globs: [_config.ownersFile] }).then(function ($await_1) {
+      return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFile] }).then(function ($await_1) {
         results = $await_1;
         ownershipMap = {};
 

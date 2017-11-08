@@ -1,10 +1,10 @@
 import git from 'simple-git'
 import _ from 'underscore'
-import { root } from './config'
+import { gitPath } from './config'
 
 function getChangedFiles() {
   return new Promise(resolve => {
-    git(root).show(['--oneline', '--name-only'], (err, result) => {
+    git(gitPath).show(['--oneline', '--name-only'], (err, result) => {
       resolve(result.split('\n').slice(1, -1))
     })
   })
@@ -19,7 +19,7 @@ async function init() {
 function getGitInfo() {
   const gitInfo = {}
   return new Promise(resolve => {
-    git(root)
+    git(gitPath)
       .raw(['log', '--oneline', '-2'], (err, result) => {
         const commits = result.split('\n')
         gitInfo.commits = {
@@ -43,7 +43,7 @@ function getGitInfo() {
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
   if (_.isEmpty(gitInfo)) throw new Error('git.init() never called')
   return new Promise(resolve => {
-    git(root)
+    git(gitPath)
       .checkoutBranch(`${gitInfo.branch}-${branchSuffix}`, gitInfo.commits.base)
       .checkout([gitInfo.commits.change, ...pr.files])
       .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`)

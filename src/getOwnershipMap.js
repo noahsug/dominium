@@ -1,9 +1,9 @@
 import rg from 'ripgrep-js'
 import _ from 'underscore'
-import { root, ownersFile } from './config'
+import { gitPath, ownersFile } from './config'
 
 export default async function getOwnershipMap(changedFiles) {
-  const results = await rg(root, { regex: '.', globs: [ownersFile] })
+  const results = await rg(gitPath, { regex: '.', globs: [ownersFile] })
   const ownershipMap = {}
   for (let result of results) {
     for (let owner of result.match.split(' ')) {

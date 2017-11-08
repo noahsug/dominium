@@ -1,10 +1,8 @@
-#!/usr/bin/env node
-
 import git from './git'
 import config from './config'
 import getOwnershipMap from './getOwnershipMap'
 import getPullRequests from './getPullRequests'
-import teamReader from './teamReader'
+import getTeams from './getTeams'
 
 async function run() {
   await git.init()
@@ -37,8 +35,9 @@ function printBranch(pr, index) {
 // run()
 
 async function run2() {
-  const teams = await teamReader.getTeams()
-  console.log(teams)
+  console.log('getting teams...')
+  const teams = await getTeams()
+  console.log('TEAMS:', teams)
 }
 
 run2()

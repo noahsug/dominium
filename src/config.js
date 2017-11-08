@@ -1,8 +1,12 @@
+import path from 'path'
+
 const args = process.argv.slice(2)
 
 const config = {
-  root: process.cwd(),
+  gitPath: process.argv[0],
+  writePath: path.resolve(process.argv[1], '../'),
   dryRun: args.includes('--dryrun'),
+  noCache: args.includes('--no-cache'),
   ownersFile: 'MANDATORY_REVIEWERS',
   groupPrefix: 'airbnb/',
   noOwnerBranchName: 'unowned',

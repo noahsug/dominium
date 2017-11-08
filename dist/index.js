@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 var _git = require('./git');
 
 var _git2 = _interopRequireDefault(_git);
@@ -15,9 +14,9 @@ var _getPullRequests = require('./getPullRequests');
 
 var _getPullRequests2 = _interopRequireDefault(_getPullRequests);
 
-var _teamReader = require('./teamReader');
+var _getTeams = require('./getTeams');
 
-var _teamReader2 = _interopRequireDefault(_teamReader);
+var _getTeams2 = _interopRequireDefault(_getTeams);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -386,10 +385,12 @@ function printBranch(pr, index) {
 function run2() {
   return new Promise(function ($return, $error) {
     var teams;
-    return _teamReader2['default'].getTeams().then(function ($await_9) {
+
+    console.log('getting teams...');
+    return (0, _getTeams2['default'])().then(function ($await_9) {
       teams = $await_9;
 
-      console.log(teams);
+      console.log('TEAMS:', teams);
       return $return();
     }.$asyncbind(this, $error), $error);
   }.$asyncbind(this));
