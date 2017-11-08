@@ -1,0 +1,14 @@
+{
+  "presets": [
+    ["airbnb", {
+      "targets": {
+        "node": "6.10.2"
+      }
+    }]
+  ],
+  "plugins": [
+    "fast-async",
+    "dynamic-import-webpack",
+    "add-module-exports"
+  ]
+}
