@@ -14,10 +14,6 @@ var _getPullRequests = require('./getPullRequests');
 
 var _getPullRequests2 = _interopRequireDefault(_getPullRequests);
 
-var _getTeams = require('./getTeams');
-
-var _getTeams2 = _interopRequireDefault(_getTeams);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 Function.prototype.$asyncbind = function () {
@@ -327,10 +323,12 @@ function run() {
         changedFiles = $await_6;
         return (0, _getOwnershipMap2['default'])(changedFiles).then(function ($await_7) {
           ownership = $await_7;
-          pullRequests = (0, _getPullRequests2['default'])(ownership);
+          return (0, _getPullRequests2['default'])(ownership).then(function ($await_8) {
+            pullRequests = $await_8;
 
-          createBranches(pullRequests);
-          return $return();
+            createBranches(pullRequests);
+            return $return();
+          }.$asyncbind(this, $error), $error);
         }.$asyncbind(this, $error), $error);
       }.$asyncbind(this, $error), $error);
     }.$asyncbind(this, $error), $error);
@@ -356,7 +354,7 @@ function createBranches(pullRequests) {
           };
 
           if (!_config2['default'].dryRun) {
-            return _git2['default'].createPrBranch(pr, options).then(function ($await_8) {
+            return _git2['default'].createPrBranch(pr, options).then(function ($await_9) {
               return $If_4.call(this);
             }.$asyncbind(this, $error), $error);
           }
@@ -379,21 +377,3 @@ function createBranches(pullRequests) {
 function printBranch(pr, index) {
   console.log('  ' + String(index + 1) + ')', String(pr.files.length) + ' files', 'owned by ' + String(pr.owners.join(', ')));
 }
-
-// run()
-
-function run2() {
-  return new Promise(function ($return, $error) {
-    var teams;
-
-    console.log('getting teams...');
-    return (0, _getTeams2['default'])().then(function ($await_9) {
-      teams = $await_9;
-
-      console.log('TEAMS:', teams);
-      return $return();
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-run2();

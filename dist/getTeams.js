@@ -2,19 +2,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _ripgrepJs = require('ripgrep-js');
+var _nodeFetchJson = require('node-fetch-json');
 
-var _ripgrepJs2 = _interopRequireDefault(_ripgrepJs);
+var _nodeFetchJson2 = _interopRequireDefault(_nodeFetchJson);
 
 var _underscore = require('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
 var _config = require('./config');
 
-var _getTeams = require('./getTeams');
+var _config2 = _interopRequireDefault(_config);
 
-var _getTeams2 = _interopRequireDefault(_getTeams);
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -317,92 +323,129 @@ Function.prototype.$asyncbind = function () {
   return $asyncbind;
 }();
 
-exports['default'] = function () {
-  function getOwnershipMap(changedFiles) {
-    return new Promise(function ($return, $error) {
-      const ownershipMap = {};
-      for (const owner of getOwners()) {
-        const files = getMatchingFiles(changedFiles, result.file);
-        if (files.length === 0) break;
-        if (!ownershipMap[owner]) ownershipMap[owner] = [];
-        ownershipMap[owner] = ownershipMap[owner].concat(files);
-      }
-      ownershipMap['unowned'] = getUnownedFiles(changedFiles, ownershipMap);
-      return $return(ownershipMap);
-    }.$asyncbind(this));
-  }
+const teamsPath = _path2['default'].resolve(_config2['default'].writePath, 'teams.json');
+const accessToken = '16a890797521394521bd64dfc235f2502ab58366';
+const gitUrl = 'https://git.musta.ch/api/v3';
+const org = 'airbnb';
+// process.env.AUTH_TOKEN
 
-  return getOwnershipMap;
-}();
-
-function getOwners() {
+function getTeams() {
   return new Promise(function ($return, $error) {
-    let owners = getOwnersFromOwnersFiles();
-    owners = owners.concat(getOwnersFromComments());
-    return $return(replaceTeamsWithOwners(owners));
-  }.$asyncbind(this));
-}
+    let teams;
 
-function getOwnersFromOwnersFiles() {
-  return new Promise(function ($return, $error) {
-    var results;
-    let result;
-
-    result = [];
-    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFile] }).then(function ($await_1) {
-      results = $await_1;
-
-      for (const result of results) {
-        for (const owner of result.match.split(' ')) {
-          if (owner) result.push(owner);
-        }
-      }
-      return $return(result);
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-function getOwnersFromComments() {
-  return new Promise(function ($return, $error) {
-    return $return([]);
-  }.$asyncbind(this));
-}
-
-function replaceTeamsWithOwners(teamsAndOwners) {
-  return new Promise(function ($return, $error) {
-    var result, teams, ownersFromTeam;
-    result = {};
-    return (0, _getTeams2['default'])().then(function ($await_2) {
-      teams = $await_2;
-
-      for (const teamOrOwner of teamsAndOwners) {
-        ownersFromTeam = teams[teamOrOwner];
-
-        if (ownersFromTeam) {
-          ownersFromTeam.forEach(owner => {
-            if (owner) result[owner] = true;
-          });
-        } else {
-          result[ownerOrTeam] = true;
-        }
-      }
-      return $return(Object.keys(result));
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-function getMatchingFiles(changedFiles, file) {
-  const path = file.replace(_config.ownersFile, '');
-  return changedFiles.filter(f => f.startsWith(path));
-}
-
-function getUnownedFiles(changedFiles, ownershipMap) {
-  const owned = {};
-  _underscore2['default'].each(ownershipMap, files => {
-    for (let file of files) {
-      owned[file] = true;
+    if (_config2['default'].noCache) {
+      return writeTeams().then($return, $error);
     }
-  });
-  return changedFiles.filter(f => !owned[f]);
+    var $Try_1_Post = function () {
+      return $return(teams);
+    }.$asyncbind(this, $error);var $Try_1_Catch = function (e) {
+      return writeTeams().then(function ($await_7) {
+        teams = $await_7;
+        return $Try_1_Post();
+      }.$asyncbind(this, $error), $error);
+    }.$asyncbind(this, $error);
+    try {
+      return readTeams().then(function ($await_8) {
+        teams = $await_8;
+        return $Try_1_Post();
+      }.$asyncbind(this, $Try_1_Catch), $Try_1_Catch);
+    } catch (e) {
+      $Try_1_Catch(e)
+    }
+  }.$asyncbind(this));
 }
+
+function writeTeams() {
+  return new Promise(function ($return, $error) {
+    var teams;
+    return fetchTeams().then(function ($await_9) {
+      teams = $await_9;
+
+      return $return(new Promise(resolve => {
+        _fs2['default'].writeFile(teamsPath, JSON.stringify(teams), (err, result) => {
+          if (err) throw new Error('Failed to write teams: ' + String(err));
+          resolve(teams);
+        });
+      }));
+    }.$asyncbind(this, $error), $error);
+  }.$asyncbind(this));
+}
+
+function fetchTeams() {
+  return new Promise(function ($return, $error) {
+    var teams;
+    let page, next;
+    teams = {};
+
+    page = 1;
+    return getNextTeams(page).then(function ($await_10) {
+      next = $await_10;
+      return Function.$asyncbind.trampoline(this, $Loop_3_exit, $Loop_3, $error, true)($Loop_3);
+
+      function $Loop_3() {
+        if (!_underscore2['default'].isEmpty(next)) {
+          Object.assign(teams, next);
+          page += 1;
+          return getNextTeams(page).then(function ($await_11) {
+            next = $await_11;
+            return $Loop_3;
+          }.$asyncbind(this, $error), $error);
+        } else return [1];
+      }
+
+      function $Loop_3_exit() {
+        return $return(teams);
+      }
+    }.$asyncbind(this, $error), $error);
+  }.$asyncbind(this));
+}
+
+function getNextTeams(page) {
+  return new Promise(function ($return, $error) {
+    var url, data, teams;
+    url = [gitUrl, '/orgs/', org, '/teams', '?per_page=100', '&access_token=' + accessToken, '&page=' + String(page)].join('');
+    return (0, _nodeFetchJson2['default'])(url, { method: 'GET' }).then(function ($await_12) {
+      data = $await_12;
+      teams = {};
+
+      for (const team of data) {
+        teams[team.name] = team.id;
+      }
+      return $return(teams);
+    }.$asyncbind(this, $error), $error);
+  }.$asyncbind(this));
+}
+
+function readTeams() {
+  return new Promise(function ($return, $error) {
+    return $return(new Promise((resolve, reject) => {
+      _fs2['default'].readFile(teamsPath, 'utf8', (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(result));
+        }
+      });
+    }));
+  }.$asyncbind(this));
+}
+
+let teams;
+function cachedGetTeams() {
+  return new Promise(function ($return, $error) {
+    if (!teams) {
+      return getTeams().then(function ($await_13) {
+        teams = $await_13;
+        return $If_5.call(this);
+      }.$asyncbind(this, $error), $error);
+    }
+    function $If_5() {
+      return $return(teams);
+    }
+
+    return $If_5.call(this);
+  }.$asyncbind(this));
+}
+
+exports['default'] = cachedGetTeams;
 module.exports = exports['default'];

@@ -1,21 +1,22 @@
 import _ from 'underscore'
+import getTeams from './getTeams'
 
-export default function getPullRequests(ownership) {
-  let prs = getBestCoveragePrs(ownership)
+export default async function getPullRequests(ownership) {
+  let prs = await getBestCoveragePrs(ownership)
   removeFiles(ownership, getFiles(prs))
   addSingleOwnerCoveredFiles(prs, ownership)
   removeFiles(ownership, getFiles(prs))
-  return prs.concat(getAnyCoveragePrs(ownership))
+  return await prs.concat(getAnyCoveragePrs(ownership))
 }
 
-function getBestCoveragePrs(ownership) {
+async function getBestCoveragePrs(ownership) {
   const prs = []
   const pairOwnership = getPairOwnership(ownership)
   let ownerPair = getBestOwner(pairOwnership)
   while (ownerPair) {
     const files = pairOwnership[ownerPair]
     if (files.length === 1) break
-    const owners = getOwners(ownership, files)
+    const owners = await getOwners(ownership, files)
     prs.push({ owners, files })
     removeFiles(pairOwnership, files)
     ownerPair = getBestOwner(pairOwnership)
@@ -56,12 +57,12 @@ function addSingleOwnerCoveredFiles(prs, ownership) {
   }
 }
 
-function getAnyCoveragePrs(ownership) {
+async function getAnyCoveragePrs(ownership) {
   let prs = []
   let owner = getBestOwner(ownership)
   while (owner) {
     const files = ownership[owner]
-    const owners = getOwners(ownership, files)
+    const owners = await getOwners(ownership, files)
     prs.push({ owners, files })
     removeFiles(ownership, files)
     owner = getBestOwner(ownership)
@@ -75,7 +76,8 @@ function getBestOwner(ownership) {
   return _.max(owners, owner => ownership[owner].length)
 }
 
-function getOwners(ownership, files) {
+async function getOwners(ownership, files) {
+  // TODO replace multiple owners with a single team
   let owners = []
   _.each(ownership, (ownedFiles, owner) => {
     const coverFiles = files.every(f => ownedFiles.includes(f))

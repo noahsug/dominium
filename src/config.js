@@ -8,7 +8,7 @@ const config = {
   dryRun: args.includes('--dryrun'),
   noCache: args.includes('--no-cache'),
   ownersFile: 'MANDATORY_REVIEWERS',
-  groupPrefix: 'airbnb/',
+  teamPrefix: 'airbnb/',
   noOwnerBranchName: 'unowned',
   teams: {
     'mt-places': ['emily-zhao', 'andrew-scheuermann'],
