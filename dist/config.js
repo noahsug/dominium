@@ -22,7 +22,5 @@ const config = {
   accessToken: process.env.AUTH_TOKEN
 };
 
-console.log(process.env.AUTH_TOKEN);
-
 exports['default'] = config;
 module.exports = exports['default'];
