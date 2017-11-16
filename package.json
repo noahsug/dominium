@@ -1,13 +1,15 @@
 {
-  "name": "owners-scrapper",
+  "name": "dominium",
   "version": "0.0.1",
-  "description": "Scrape owners files",
-  "main": "dist/bundle.js",
+  "description": "Break large changes into smaller ones based on mandatory reviewer coverage.",
+  "main": "dist/index.js",
+  "bin": { "dominium": "dist/index.js" },
   "scripts": {
     "build": "npm run clean && babel src --out-dir dist",
     "start": "npm run build -- --watch",
     "clean": "rimraf dist",
-    "test": "jest"
+    "test": "jest src",
+    "preinstall": "npm run build"
   },
   "dependencies": {
     "node-fetch-json": "0.0.3",
@@ -18,7 +20,6 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-dynamic-import-webpack": "^1.0.1",
     "babel-preset-airbnb": "^2.4.0",
     "fast-async": "^6.3.0",
     "jest": "^21.2.1",

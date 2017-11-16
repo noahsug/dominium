@@ -10,11 +10,9 @@ var _underscore = require('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
+var _utils = require('./utils');
+
 var _config = require('./config');
-
-var _getTeams = require('./getTeams');
-
-var _getTeams2 = _interopRequireDefault(_getTeams);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -318,87 +316,85 @@ Function.prototype.$asyncbind = function () {
 }();
 
 exports['default'] = function () {
-  function getOwnershipMap(changedFiles) {
+  function getOwnerMap(changedFiles) {
     return new Promise(function ($return, $error) {
-      const ownershipMap = {};
-      for (const owner of getOwners()) {
-        const files = getMatchingFiles(changedFiles, result.file);
-        if (files.length === 0) break;
-        if (!ownershipMap[owner]) ownershipMap[owner] = [];
-        ownershipMap[owner] = ownershipMap[owner].concat(files);
-      }
-      ownershipMap['unowned'] = getUnownedFiles(changedFiles, ownershipMap);
-      return $return(ownershipMap);
+      var ownerMap;
+      ownerMap = {};
+      return getOwnerMapFromOwnerFiles(changedFiles).then(function ($await_1) {
+        (0, _utils.appendValues)(ownerMap, $await_1);
+        return getOwnerMapFromComments(changedFiles).then(function ($await_2) {
+          (0, _utils.appendValues)(ownerMap, $await_2);
+          ownerMap['unowned'] = getUnownedFiles(changedFiles, ownerMap);
+          return $return(ownerMap);
+        }.$asyncbind(this, $error), $error);
+      }.$asyncbind(this, $error), $error);
     }.$asyncbind(this));
   }
 
-  return getOwnershipMap;
+  return getOwnerMap;
 }();
 
-function getOwners() {
+function getOwnerMapFromOwnerFiles(changedFiles) {
   return new Promise(function ($return, $error) {
-    let owners = getOwnersFromOwnersFiles();
-    owners = owners.concat(getOwnersFromComments());
-    return $return(replaceTeamsWithOwners(owners));
+    var pathOwnerMap;
+    return getOwnerFileOwnerMap().then(function ($await_3) {
+      pathOwnerMap = $await_3;
+
+      return $return(getChangedFilesOwnerMap(pathOwnerMap, changedFiles));
+    }.$asyncbind(this, $error), $error);
   }.$asyncbind(this));
 }
 
-function getOwnersFromOwnersFiles() {
+function getOwnerFileOwnerMap() {
   return new Promise(function ($return, $error) {
-    var results;
-    let result;
-
-    result = [];
-    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFile] }).then(function ($await_1) {
-      results = $await_1;
+    var ownerMap, results, owners, file;
+    ownerMap = {};
+    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownerFileName] }).then(function ($await_4) {
+      results = $await_4;
 
       for (const result of results) {
-        for (const owner of result.match.split(' ')) {
-          if (owner) result.push(owner);
+        owners = result.match.replace(/(\s|,)+/, ' ').trim().split(/\s/);
+        file = result.file.replace(_config.ownerFileName, '');
+
+        for (const owner of owners) {
+          ownerMap[owner] = (ownerMap[owner] || []).concat(file);
         }
       }
-      return $return(result);
+      return $return(ownerMap);
     }.$asyncbind(this, $error), $error);
   }.$asyncbind(this));
 }
 
-function getOwnersFromComments() {
+function getOwnerMapFromComments(changedFiles) {
   return new Promise(function ($return, $error) {
-    return $return([]);
+    return $return({});
   }.$asyncbind(this));
 }
 
-function replaceTeamsWithOwners(teamsAndOwners) {
+function getChangedFilesOwnerMap(pathOwnerMap, changedFiles) {
   return new Promise(function ($return, $error) {
-    var result, teams, ownersFromTeam;
-    result = {};
-    return (0, _getTeams2['default'])().then(function ($await_2) {
-      teams = $await_2;
-
-      for (const teamOrOwner of teamsAndOwners) {
-        ownersFromTeam = teams[teamOrOwner];
-
-        if (ownersFromTeam) {
-          ownersFromTeam.forEach(owner => {
-            if (owner) result[owner] = true;
-          });
-        } else {
-          result[ownerOrTeam] = true;
-        }
-      }
-      return $return(Object.keys(result));
-    }.$asyncbind(this, $error), $error);
+    const ownerMap = {};
+    _underscore2['default'].each(pathOwnerMap, (paths, owner) => {
+      const files = getMatchingFiles(changedFiles, paths);
+      if (files.length === 0) return;
+      ownerMap[owner] = (ownerMap[owner] || []).concat(files);
+    });
+    return $return(ownerMap);
   }.$asyncbind(this));
 }
 
-function getMatchingFiles(changedFiles, file) {
-  const path = file.replace(_config.ownersFile, '');
-  return changedFiles.filter(f => f.startsWith(path));
+function getMatchingFiles(changedFiles, paths) {
+  let files = [];
+  for (const path of paths) {
+    const matchingFiles = changedFiles.filter(f => f.startsWith(path));
+    files = files.concat(matchingFiles);
+  }
+  return files;
 }
 
-function getUnownedFiles(changedFiles, ownershipMap) {
+function getUnownedFiles(changedFiles, ownerMap) {
   const owned = {};
-  _underscore2['default'].each(ownershipMap, files => {
+  _underscore2['default'].each(ownerMap, files => {
     for (let file of files) {
       owned[file] = true;
     }

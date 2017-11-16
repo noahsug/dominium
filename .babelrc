@@ -8,7 +8,6 @@
   ],
   "plugins": [
     "fast-async",
-    "dynamic-import-webpack",
     "add-module-exports"
   ]
 }

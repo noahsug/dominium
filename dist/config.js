@@ -11,17 +11,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 const args = process.argv.slice(2);
 
 const config = {
-  gitPath: process.argv[0],
+  gitPath: process.cwd(),
   writePath: _path2['default'].resolve(process.argv[1], '../'),
   dryRun: args.includes('--dryrun'),
   noCache: args.includes('--no-cache'),
-  ownersFile: 'MANDATORY_REVIEWERS',
+  ownerFileName: 'MANDATORY_REVIEWERS',
   teamPrefix: 'airbnb/',
   noOwnerBranchName: 'unowned',
-  teams: {
-    'mt-places': ['emily-zhao', 'andrew-scheuermann']
-  }
+  gitApiUrl: 'https://git.musta.ch/api/v3',
+  accessToken: process.env.AUTH_TOKEN
 };
+
+console.log(process.env.AUTH_TOKEN);
 
 exports['default'] = config;
 module.exports = exports['default'];

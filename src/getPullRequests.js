@@ -1,37 +1,36 @@
 import _ from 'underscore'
-import getTeams from './getTeams'
 
-export default async function getPullRequests(ownership) {
-  let prs = await getBestCoveragePrs(ownership)
-  removeFiles(ownership, getFiles(prs))
-  addSingleOwnerCoveredFiles(prs, ownership)
-  removeFiles(ownership, getFiles(prs))
-  return await prs.concat(getAnyCoveragePrs(ownership))
+export default function getPullRequests(ownerMap) {
+  let prs = getBestCoveragePrs(ownerMap)
+  removeFiles(ownerMap, getFiles(prs))
+  addSingleOwnerCoveredFiles(prs, ownerMap)
+  removeFiles(ownerMap, getFiles(prs))
+  return prs.concat(getAnyCoveragePrs(ownerMap))
 }
 
-async function getBestCoveragePrs(ownership) {
+function getBestCoveragePrs(ownerMap) {
   const prs = []
-  const pairOwnership = getPairOwnership(ownership)
-  let ownerPair = getBestOwner(pairOwnership)
+  const pairOwnerMap = getPairOwnerMap(ownerMap)
+  let ownerPair = getBestOwner(pairOwnerMap)
   while (ownerPair) {
-    const files = pairOwnership[ownerPair]
+    const files = pairOwnerMap[ownerPair]
     if (files.length === 1) break
-    const owners = await getOwners(ownership, files)
+    const owners = getOwners(ownerMap, files)
     prs.push({ owners, files })
-    removeFiles(pairOwnership, files)
-    ownerPair = getBestOwner(pairOwnership)
+    removeFiles(pairOwnerMap, files)
+    ownerPair = getBestOwner(pairOwnerMap)
   }
   return prs
 }
 
-function getPairOwnership(ownership) {
-  const pairOwnership = {}
-  const ownerPairs = getOwnerPairs(Object.keys(ownership))
+function getPairOwnerMap(ownerMap) {
+  const pairOwnerMap = {}
+  const ownerPairs = getOwnerPairs(Object.keys(ownerMap))
   ownerPairs.forEach(pair => {
-    const files = _.intersection(ownership[pair[0]], ownership[pair[1]])
-    pairOwnership[pair.join(',')] = files
+    const files = _.intersection(ownerMap[pair[0]], ownerMap[pair[1]])
+    pairOwnerMap[pair.join(',')] = files
   })
-  return pairOwnership
+  return pairOwnerMap
 }
 
 function getOwnerPairs(owners) {
@@ -44,56 +43,55 @@ function getOwnerPairs(owners) {
   return pairs
 }
 
-function addSingleOwnerCoveredFiles(prs, ownership) {
+function addSingleOwnerCoveredFiles(prs, ownerMap) {
   const ownersInPrs = _.unique(_.flatten(prs.map(pr => pr.owners)))
-  const prOwnerOwnership = _.pick(ownership, ...ownersInPrs)
-  let owner = getBestOwner(prOwnerOwnership)
+  const prOwnerOwnerMap = _.pick(ownerMap, ...ownersInPrs)
+  let owner = getBestOwner(prOwnerOwnerMap)
   while (owner) {
     const pr = prs.find(pr => pr.owners.includes(owner))
     if (!pr) break
-    pr.files = pr.files.concat(prOwnerOwnership[owner])
-    removeFiles(prOwnerOwnership, prOwnerOwnership[owner])
-    owner = getBestOwner(prOwnerOwnership)
+    pr.files = pr.files.concat(prOwnerOwnerMap[owner])
+    removeFiles(prOwnerOwnerMap, prOwnerOwnerMap[owner])
+    owner = getBestOwner(prOwnerOwnerMap)
   }
 }
 
-async function getAnyCoveragePrs(ownership) {
+function getAnyCoveragePrs(ownerMap) {
   let prs = []
-  let owner = getBestOwner(ownership)
+  let owner = getBestOwner(ownerMap)
   while (owner) {
-    const files = ownership[owner]
-    const owners = await getOwners(ownership, files)
+    const files = ownerMap[owner]
+    const owners = getOwners(ownerMap, files)
     prs.push({ owners, files })
-    removeFiles(ownership, files)
-    owner = getBestOwner(ownership)
+    removeFiles(ownerMap, files)
+    owner = getBestOwner(ownerMap)
   }
   return prs
 }
 
-function getBestOwner(ownership) {
-  const owners = Object.keys(ownership)
+function getBestOwner(ownerMap) {
+  const owners = Object.keys(ownerMap)
   if (!owners.length) return null
-  return _.max(owners, owner => ownership[owner].length)
+  return _.max(owners, owner => ownerMap[owner].length)
 }
 
-async function getOwners(ownership, files) {
-  // TODO replace multiple owners with a single team
+function getOwners(ownerMap, files) {
   let owners = []
-  _.each(ownership, (ownedFiles, owner) => {
+  _.each(ownerMap, (ownedFiles, owner) => {
     const coverFiles = files.every(f => ownedFiles.includes(f))
     if (coverFiles) owners.push(owner)
   })
   return owners
 }
 
-function removeFiles(ownership, files) {
-  const owners = Object.keys(ownership)
+function removeFiles(ownerMap, files) {
+  const owners = Object.keys(ownerMap)
   owners.forEach(owner => {
-    const remainingFiles = _.difference(ownership[owner], files)
+    const remainingFiles = _.difference(ownerMap[owner], files)
     if (remainingFiles.length) {
-      ownership[owner] = remainingFiles
+      ownerMap[owner] = remainingFiles
     } else {
-      delete ownership[owner]
+      delete ownerMap[owner]
     }
   })
 }

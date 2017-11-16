@@ -1,16 +1,19 @@
 import fetch from 'node-fetch-json'
 import _ from 'underscore'
 import fs from 'fs'
-import config from './config'
 import path from 'path'
+import config from './config'
+import github from './github'
+import { memoize } from './utils'
 
 const teamsPath = path.resolve(config.writePath, 'teams.json')
-const accessToken = '16a890797521394521bd64dfc235f2502ab58366'
-const gitUrl = 'https://git.musta.ch/api/v3'
-const org = 'airbnb'
-// process.env.AUTH_TOKEN
 
-async function getTeams() {
+async function getTeamMembers(team) {
+  // const teams = await getTeams()
+  const path = `/teams/${teamId}/members`
+}
+
+const getTeams = memoize(async () => {
   if (config.noCache) return await writeTeams()
   let teams
   try {
@@ -19,7 +22,7 @@ async function getTeams() {
     teams = await writeTeams()
   }
   return teams
-}
+})
 
 async function writeTeams() {
   const teams = await fetchTeams()
@@ -44,6 +47,7 @@ async function fetchTeams() {
 }
 
 async function getNextTeams(page) {
+  // '/orgs/airbnb/teams'
   const url = [
     gitUrl,
     '/orgs/',
@@ -73,10 +77,4 @@ async function readTeams() {
   })
 }
 
-let teams
-async function cachedGetTeams() {
-  if (!teams) teams = await getTeams()
-  return teams
-}
-
-export default cachedGetTeams
+export default getTeamMembers

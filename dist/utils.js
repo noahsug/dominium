@@ -1,23 +1,13 @@
-#!/usr/bin/env node
-var _git = require('./git');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.appendValues = appendValues;
+exports.memoize = memoize;
+exports.isAsync = isAsync;
 
-var _git2 = _interopRequireDefault(_git);
+var _underscore = require('underscore');
 
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _getOwnerMap = require('./getOwnerMap');
-
-var _getOwnerMap2 = _interopRequireDefault(_getOwnerMap);
-
-var _getPullRequests = require('./getPullRequests');
-
-var _getPullRequests2 = _interopRequireDefault(_getPullRequests);
-
-var _teams = require('./teams');
-
-var _teams2 = _interopRequireDefault(_teams);
+var _underscore2 = _interopRequireDefault(_underscore);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -320,75 +310,41 @@ Function.prototype.$asyncbind = function () {
   return $asyncbind;
 }();
 
-function run() {
-  return new Promise(function ($return, $error) {
-    var changedFiles, ownerMap, pullRequests;
-    return _git2['default'].init().then(function ($await_5) {
-      return _git2['default'].getChangedFiles().then(function ($await_6) {
-        changedFiles = $await_6;
-        return (0, _getOwnerMap2['default'])(changedFiles).then(function ($await_7) {
-          ownerMap = $await_7;
-          return _teams2['default'].replaceTeamsWithOwners(ownerMap).then(function ($await_8) {
-            pullRequests = (0, _getPullRequests2['default'])(ownerMap);
-            return _teams2['default'].replaceOwnersWithTeams(pullRequests).then(function ($await_9) {
-              return createBranches(pullRequests).then(function ($await_10) {
-                return $return();
-              }.$asyncbind(this, $error), $error);
-            }.$asyncbind(this, $error), $error);
-          }.$asyncbind(this, $error), $error);
+function appendValues(source, target) {
+  _underscore2['default'].each(target, (values, key) => {
+    source[key] = (source[key] || []).concat(values);
+  });
+}
+
+function memoize(fn) {
+  const cache = {};
+  if (isAsync(fn)) {
+    return (...args) => new Promise(function ($return, $error) {
+      var key;
+      key = JSON.stringify(args);
+
+      if (!cache[key]) {
+        return fn(...args).then(function ($await_2) {
+          cache[key] = $await_2;
+          return $If_1.call(this);
         }.$asyncbind(this, $error), $error);
-      }.$asyncbind(this, $error), $error);
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-function createBranches(pullRequests) {
-  return new Promise(function ($return, $error) {
-    var options;
-
-    console.log('Creating', pullRequests.length, 'branches:');
-    {
-      let i,
-          pr,
-          $iterator_i_pr_1 = [pullRequests.entries()[Symbol.iterator]()];return Function.$asyncbind.trampoline(this, $Loop_2_exit, $Loop_2, $error, true)($Loop_2);
-
-      function $Loop_2() {
-        if (!($iterator_i_pr_1[1] = $iterator_i_pr_1[0].next()).done && (([i, pr] = $iterator_i_pr_1[1].value) || true)) {
-          printBranch(pr, i);
-          options = {
-            branchSuffix: i + 1,
-            commitMsgSuffix: String(i + 1) + '/' + String(pullRequests.length)
-          };
-
-          if (!_config2['default'].dryRun) {
-            return _git2['default'].createPrBranch(pr, options).then(function ($await_11) {
-              return $If_4.call(this);
-            }.$asyncbind(this, $error), $error);
-          }
-
-          function $If_4() {
-            return $Loop_2;
-          }
-
-          return $If_4.call(this);
-        } else return [1];
       }
-    }
+      function $If_1() {
+        return $return(cache[key]);
+      }
 
-    function $Loop_2_exit() {
-      return $return();
-    }
-  }.$asyncbind(this));
+      return $If_1.call(this);
+    }.$asyncbind(this));
+  } else {
+    return (...args) => {
+      const key = JSON.stringify(args);
+      if (!cache[key]) cache[key] = fn(...args);
+      return cache[key];
+    };
+  }
 }
 
-function printBranch(pr, index) {
-  console.log('  ' + String(index + 1) + ')', String(pr.files.length) + ' files', 'owned by ' + String(pr.owners.join(', ')));
+// Does not work for promises.
+function isAsync(fn) {
+  return fn.constructor.name === 'AsyncFunction';
 }
-
-run();
-
-//import getTeamMembers from './getTeamMembers'
-//async function run2() {
-//  console.log(await getTeamMembers('mt-places'))
-//}
-//run2()

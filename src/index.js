@@ -1,14 +1,19 @@
+#!/usr/bin/env node
+
 import git from './git'
 import config from './config'
-import getOwnershipMap from './getOwnershipMap'
+import getOwnerMap from './getOwnerMap'
 import getPullRequests from './getPullRequests'
+import teams from './teams'
 
 async function run() {
   await git.init()
   const changedFiles = await git.getChangedFiles()
-  const ownership = await getOwnershipMap(changedFiles)
-  const pullRequests = await getPullRequests(ownership)
-  createBranches(pullRequests)
+  const ownerMap = await getOwnerMap(changedFiles)
+  await teams.replaceTeamsWithOwners(ownerMap)
+  const pullRequests = getPullRequests(ownerMap)
+  await teams.replaceOwnersWithTeams(pullRequests)
+  await createBranches(pullRequests)
 }
 
 async function createBranches(pullRequests) {
@@ -30,3 +35,11 @@ function printBranch(pr, index) {
     `owned by ${pr.owners.join(', ')}`
   )
 }
+
+run()
+
+//import getTeamMembers from './getTeamMembers'
+//async function run2() {
+//  console.log(await getTeamMembers('mt-places'))
+//}
+//run2()

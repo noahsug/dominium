@@ -1,4 +1,4 @@
-import getPullRequests from '../src/getPullRequests'
+import getPullRequests from './getPullRequests'
 
 function prsAreEqual(actualPrs, expectedPrs) {
   expect(actualPrs.length).toBe(expectedPrs.length)

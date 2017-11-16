@@ -2,25 +2,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _nodeFetchJson = require('node-fetch-json');
+var _getTeamMembers = require('./getTeamMembers');
 
-var _nodeFetchJson2 = _interopRequireDefault(_nodeFetchJson);
-
-var _underscore = require('underscore');
-
-var _underscore2 = _interopRequireDefault(_underscore);
-
-var _fs = require('fs');
-
-var _fs2 = _interopRequireDefault(_fs);
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
+var _getTeamMembers2 = _interopRequireDefault(_getTeamMembers);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -323,110 +307,17 @@ Function.prototype.$asyncbind = function () {
   return $asyncbind;
 }();
 
-const teamsPath = _path2['default'].resolve(_config2['default'].writePath, 'teams.json');
-const accessToken = '16a890797521394521bd64dfc235f2502ab58366';
-const gitUrl = 'https://git.musta.ch/api/v3';
-const org = 'airbnb';
-// process.env.AUTH_TOKEN
-
-function getTeams() {
+function replaceTeamsWithOwners(ownerMap) {
   return new Promise(function ($return, $error) {
-    let teams;
-    var $Try_1_Post = function () {
-      return $return(teams);
-    }.$asyncbind(this, $error);var $Try_1_Catch = function (e) {
-      return writeTeams().then(function ($await_4) {
-        teams = $await_4;
-        return $Try_1_Post();
-      }.$asyncbind(this, $error), $error);
-    }.$asyncbind(this, $error);
-    try {
-      return readTeams().then(function ($await_5) {
-        teams = $await_5;
-        return $Try_1_Post();
-      }.$asyncbind(this, $Try_1_Catch), $Try_1_Catch);
-    } catch (e) {
-      $Try_1_Catch(e)
-    }
+    return $return();
   }.$asyncbind(this));
 }
 
-function writeTeams() {
+function replaceOwnersWithTeams(pullRequests) {
   return new Promise(function ($return, $error) {
-    var teams;
-
-    console.log('wrtting teams');
-    return fetchTeams().then(function ($await_6) {
-      teams = $await_6;
-
-      return $return(new Promise(resolve => {
-        _fs2['default'].writeFile(teamsPath, JSON.stringify(teams), (err, result) => {
-          resolve(result);
-        });
-      }));
-    }.$asyncbind(this, $error), $error);
+    return $return();
   }.$asyncbind(this));
 }
 
-function fetchTeams() {
-  return new Promise(function ($return, $error) {
-    var teams;
-    let page, next;
-    teams = {};
-
-    page = 1;
-    return getNextTeams(page).then(function ($await_7) {
-      next = $await_7;
-      return Function.$asyncbind.trampoline(this, $Loop_2_exit, $Loop_2, $error, true)($Loop_2);
-
-      function $Loop_2() {
-        if (!_underscore2['default'].isEmpty(next)) {
-          Object.assign(teams, next);
-          page += 1;
-          return getNextTeams(page).then(function ($await_8) {
-            next = $await_8;
-            return $Loop_2;
-          }.$asyncbind(this, $error), $error);
-        } else return [1];
-      }
-
-      function $Loop_2_exit() {
-        return $return(teams);
-      }
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-function getNextTeams(page) {
-  return new Promise(function ($return, $error) {
-    var url, data, teams;
-    url = [gitUrl, '/orgs/', org, '/teams', '?per_page=100', '&access_token=' + accessToken, '&page=' + String(page)].join('');
-    return (0, _nodeFetchJson2['default'])(url, { method: 'GET' }).then(function ($await_9) {
-      data = $await_9;
-      teams = {};
-
-      for (const team of data) {
-        teams[team.name] = team.id;
-      }
-      return $return(teams);
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
-}
-
-function readTeams() {
-  return new Promise(function ($return, $error) {
-    console.log('reading teams', teamsPath);
-    return $return(new Promise((resolve, reject) => {
-      _fs2['default'].readFile(teamsPath, 'utf8', (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(JSON.parse(result));
-        }
-      });
-    }));
-  }.$asyncbind(this));
-}
-
-exports['default'] = { getTeams };
+exports['default'] = { replaceTeamsWithOwners, replaceOwnersWithTeams };
 module.exports = exports['default'];
