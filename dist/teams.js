@@ -305,7 +305,7 @@ Function.prototype.$asyncbind = function () {
   }
 
   return $asyncbind;
-}();
+}(); // TODO: Implement
 
 function replaceTeamsWithOwners(ownerMap) {
   return new Promise(function ($return, $error) {

@@ -1,14 +1,18 @@
 # dominium
+
 > Break large changes into smaller ones based on mandatory reviewer coverage.
 
 ## Install
+
 1) `npm i -g dominium`
 2) Dominium uses ripgrep, so you'll need to isntall that as well if you haven't already (also stop using grep): https://github.com/BurntSushi/ripgrep#installation
 
-## Usage
-Run `dominium` in the root of your git repo after creating your commit.
 
-**Note:** Your commit message and branch name will be used by dominium.
+## Usage
+
+Run `dominium` in the root of your repo after creating your commit.
+
+**Note:** dominium will use your commit message and branch name.
 
 ```
 ~/myGitRepo[eslint-fix] $ git commit -am "eslint --fix accross entire codebase"
@@ -18,7 +22,7 @@ Splitting code into 4 branches:
   [eslint-fix-1] 12 files owned by noah.sugarman, airbnb/someteam
   [eslint-fix-2] 10 files owned by bob-youruncle, amy-lobg
   [eslint-fix-3] 14 files owned by airbnb/uncles
-  [eslint-fix-4] 9 files owned by unowned
+  [eslint-fix-4] 9 files owned by no owner
 
 Proceed? [Y/n] Y
 
@@ -31,3 +35,26 @@ Done
 ~/myGitRepo[eslint-fix] $ git log eslint-fix-1 --oneline -1
 7c89b7bb5bd eslint --fix accross entire codebase 1/4
 ```
+
+
+## Options
+
+This project uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig), so you can provide config via:
+* a `.dominiumrc` JSON file
+* a `dominium.config.js` JS file
+* a `dominium` property in your `package.json`
+
+
+In `.dominiumrc`
+```json
+{
+  "ownersFileName": "OWNERS"  // Default "MANDATORY_REVIEWERS"
+}
+```
+
+
+## Limitations / TODOs
+* Doesn't read file comments such as `// MANDATORY_REVIEWERS noah bob`.
+* Only supports git repos.
+* Doesn't know who belongs to which team, which would allow a smarter pull request coverage algorithm.
+* Doesn't work if OWNERS file contains information other than teams and usernames.

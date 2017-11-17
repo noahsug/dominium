@@ -325,7 +325,7 @@ Function.prototype.$asyncbind = function () {
   }
 
   return $asyncbind;
-}();
+}(); // TODO: Implement
 
 const teamsPath = _path2['default'].resolve(_config.gitPath, 'teams.json');
 

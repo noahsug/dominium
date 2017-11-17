@@ -6,9 +6,8 @@ const loadedConfig = (explorer.load('.') || { config: {} }).config
 const args = process.argv.slice(2)
 
 const config = {
-  ownerFileName: loadedConfig.ownerFileName || 'MANDATORY_REVIEWERS',
-  ownerCommentTag: loadedConfig.ownerCommentTag || 'MANDATORY_REVIEWERS',
-  noOwnerBranchSuffix: loadedConfig.noOwnerBranchSuffix || 'unowned',
+  ownersFileName: loadedConfig.ownersFileName || 'MANDATORY_REVIEWERS',
+  ownersCommentTag: loadedConfig.ownersCommentTag || 'MANDATORY_REVIEWERS',
   accessToken: loadedConfig.accessToken || process.env.AUTH_TOKEN,
   teamPrefix: loadedConfig.teamPrefix || '',
   gitApiUrl: loadedConfig.gitApiUrl,

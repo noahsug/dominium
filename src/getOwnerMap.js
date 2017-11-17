@@ -1,13 +1,13 @@
 import rg from 'ripgrep-js'
 import _ from 'underscore'
 import { appendObjValues } from './utils'
-import { gitPath, ownerFileName, noOwnerBranchSuffix } from './config'
+import { gitPath, ownersFileName } from './config'
 
 export default async function getOwnerMap(changedFiles) {
   const ownerMap = {}
   appendObjValues(ownerMap, await getOwnerMapFromOwnerFiles(changedFiles))
   appendObjValues(ownerMap, await getOwnerMapFromComments(changedFiles))
-  ownerMap[noOwnerBranchSuffix] = getUnownedFiles(changedFiles, ownerMap)
+  ownerMap['no owner'] = getUnownedFiles(changedFiles, ownerMap)
   return ownerMap
 }
 
@@ -18,13 +18,13 @@ async function getOwnerMapFromOwnerFiles(changedFiles) {
 
 async function getOwnerFileOwnerMap() {
   const ownerMap = {}
-  const results = await rg(gitPath, { regex: '.', globs: [ownerFileName] })
+  const results = await rg(gitPath, { regex: '.', globs: [ownersFileName] })
   for (const result of results) {
     const owners = result.match
       .replace(/(\s|,)+/, ' ')
       .trim()
       .split(/\s/)
-    const file = result.file.replace(ownerFileName, '')
+    const file = result.file.replace(ownersFileName, '')
     for (const owner of owners) {
       ownerMap[owner] = (ownerMap[owner] || []).concat(file)
     }

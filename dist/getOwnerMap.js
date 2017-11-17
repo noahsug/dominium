@@ -324,7 +324,7 @@ exports['default'] = function () {
         (0, _utils.appendObjValues)(ownerMap, $await_1);
         return getOwnerMapFromComments(changedFiles).then(function ($await_2) {
           (0, _utils.appendObjValues)(ownerMap, $await_2);
-          ownerMap[_config.noOwnerBranchSuffix] = getUnownedFiles(changedFiles, ownerMap);
+          ownerMap['no owner'] = getUnownedFiles(changedFiles, ownerMap);
           return $return(ownerMap);
         }.$asyncbind(this, $error), $error);
       }.$asyncbind(this, $error), $error);
@@ -349,12 +349,12 @@ function getOwnerFileOwnerMap() {
   return new Promise(function ($return, $error) {
     var ownerMap, results, owners, file;
     ownerMap = {};
-    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownerFileName] }).then(function ($await_4) {
+    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFileName] }).then(function ($await_4) {
       results = $await_4;
 
       for (const result of results) {
         owners = result.match.replace(/(\s|,)+/, ' ').trim().split(/\s/);
-        file = result.file.replace(_config.ownerFileName, '');
+        file = result.file.replace(_config.ownersFileName, '');
 
         for (const owner of owners) {
           ownerMap[owner] = (ownerMap[owner] || []).concat(file);
