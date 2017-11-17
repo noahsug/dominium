@@ -14,7 +14,7 @@ test('reads owners from owners files', async () => {
       Al: ['src/a/f1', 'src/a/aa/f2'],
       Bob: ['src/a/f1', 'src/a/aa/f2'],
       Clare: ['src/a/f1', 'src/a/aa/f2', 'src/b/f1'],
-      unowned: ['src/c/f1'],
+      'no owner': ['src/c/f1'],
     })
   )
 })

@@ -11,7 +11,7 @@
     "dominium": "dist/index.js"
   },
   "scripts": {
-    "build": "npm run clean && babel src --out-dir dist",
+    "build": "npm run clean && BABEL_ENV=production babel src --out-dir dist",
     "start": "npm run build -- --watch",
     "clean": "rimraf dist",
     "test": "jest src"

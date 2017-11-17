@@ -53,6 +53,7 @@ This project uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig), s
 
 ## Limitations / TODOs
 * Doesn't read file comments such as `// MANDATORY_REVIEWERS noah bob`.
+* Unhelpful error messages.
 * Only supports git repos.
 * Doesn't know who belongs to which team, which would allow a smarter pull request coverage algorithm.
 * Doesn't work if OWNERS file contains information other than teams and usernames.

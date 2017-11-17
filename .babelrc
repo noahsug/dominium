@@ -10,8 +10,12 @@
     "fast-async",
     "add-module-exports"
   ],
-  "ignore": [
-    "**/*.test.js",
-    "**/__mocks__"
-  ]
+  "env": {
+    "production": {
+      "ignore": [
+        "**/*.test.js",
+        "**/__mocks__"
+      ]
+    }
+  }
 }

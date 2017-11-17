@@ -19,10 +19,6 @@ var _getPullRequests = require('./getPullRequests');
 
 var _getPullRequests2 = _interopRequireDefault(_getPullRequests);
 
-var _teams = require('./teams');
-
-var _teams2 = _interopRequireDefault(_teams);
-
 var _yesNo = require('./yesNo');
 
 var _yesNo2 = _interopRequireDefault(_yesNo);
@@ -336,27 +332,24 @@ function run() {
         changedFiles = $await_6;
         return (0, _getOwnerMap2['default'])(changedFiles).then(function ($await_7) {
           ownerMap = $await_7;
-          return _teams2['default'].replaceTeamsWithOwners(ownerMap).then(function ($await_8) {
-            pullRequests = (0, _getPullRequests2['default'])(ownerMap);
-            return _teams2['default'].replaceOwnersWithTeams(pullRequests).then(function ($await_9) {
-              printBranches(pullRequests);
-              return _yesNo2['default'].ask('\nProceed?').then(function ($await_10) {
-                if ($await_10) {
-                  return createBranches(pullRequests).then(function ($await_11) {
-                    return _git2['default'].checkoutOriginalBranch().then(function ($await_12) {
-                      return $If_1.call(this);
-                    }.$asyncbind(this, $error), $error);
-                  }.$asyncbind(this, $error), $error);
-                }
+          pullRequests = (0, _getPullRequests2['default'])(ownerMap);
 
-                function $If_1() {
-                  process.exit(1);
-                  return $return();
-                }
-
-                return $If_1.call(this);
+          printBranches(pullRequests);
+          return _yesNo2['default'].ask('\nProceed?').then(function ($await_8) {
+            if ($await_8) {
+              return createBranches(pullRequests).then(function ($await_9) {
+                return _git2['default'].checkoutOriginalBranch().then(function ($await_10) {
+                  return $If_1.call(this);
+                }.$asyncbind(this, $error), $error);
               }.$asyncbind(this, $error), $error);
-            }.$asyncbind(this, $error), $error);
+            }
+
+            function $If_1() {
+              process.exit(1);
+              return $return();
+            }
+
+            return $If_1.call(this);
           }.$asyncbind(this, $error), $error);
         }.$asyncbind(this, $error), $error);
       }.$asyncbind(this, $error), $error);
@@ -387,7 +380,7 @@ function createBranches(pullRequests) {
           commitMsgSuffix = String(i + 1) + '/' + String(pullRequests.length);
 
           console.log('Creating branch', _git2['default'].getBranchName(branchSuffix));
-          return _git2['default'].createPrBranch(pr, { branchSuffix, commitMsgSuffix }).then(function ($await_13) {
+          return _git2['default'].createPrBranch(pr, { branchSuffix, commitMsgSuffix }).then(function ($await_11) {
             return $Loop_3;
           }.$asyncbind(this, $error), $error);
         } else return [1];
@@ -406,9 +399,3 @@ function getBranchSuffix(index) {
 }
 
 run();
-
-//import getTeamMembers from './getTeamMembers'
-//async function run2() {
-//  console.log(await getTeamMembers('mt-places'))
-//}
-//run2()

@@ -5,16 +5,13 @@ import git from './git'
 import config from './config'
 import getOwnerMap from './getOwnerMap'
 import getPullRequests from './getPullRequests'
-import teams from './teams'
 import yesNo from './yesNo'
 
 async function run() {
   await git.init()
   const changedFiles = await git.getChangedFiles()
   const ownerMap = await getOwnerMap(changedFiles)
-  await teams.replaceTeamsWithOwners(ownerMap)
   const pullRequests = getPullRequests(ownerMap)
-  await teams.replaceOwnersWithTeams(pullRequests)
   printBranches(pullRequests)
   if (await yesNo.ask('\nProceed?')) {
     await createBranches(pullRequests)
@@ -50,9 +47,3 @@ function getBranchSuffix(index) {
 }
 
 run()
-
-//import getTeamMembers from './getTeamMembers'
-//async function run2() {
-//  console.log(await getTeamMembers('mt-places'))
-//}
-//run2()
