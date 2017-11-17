@@ -346,23 +346,21 @@ function getOwnerMapFromOwnerFiles(changedFiles) {
 }
 
 function getOwnerFileOwnerMap() {
-  return new Promise(function ($return, $error) {
-    var ownerMap, results, owners, file;
-    ownerMap = {};
-    return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFileName] }).then(function ($await_4) {
-      results = $await_4;
+  return (0, _ripgrepJs2['default'])(_config.gitPath, { regex: '.', globs: [_config.ownersFileName] }).then(parseOwnersFiles)['catch'](e => {
+    (0, _utils.checkError)(e, 'Error: ripgrep not installed. Please install from https://github.com/BurntSushi/ripgrep#installation');
+  });
+}
 
-      for (const result of results) {
-        owners = result.match.replace(/(\s|,)+/, ' ').trim().split(/\s/);
-        file = result.file.replace(_config.ownersFileName, '');
-
-        for (const owner of owners) {
-          ownerMap[owner] = (ownerMap[owner] || []).concat(file);
-        }
-      }
-      return $return(ownerMap);
-    }.$asyncbind(this, $error), $error);
-  }.$asyncbind(this));
+function parseOwnersFiles(ownersFiles) {
+  const ownerMap = {};
+  for (const result of ownersFiles) {
+    const owners = result.match.replace(/(\s|,)+/, ' ').trim().split(/\s/);
+    const file = result.file.replace(_config.ownersFileName, '');
+    for (const owner of owners) {
+      ownerMap[owner] = (ownerMap[owner] || []).concat(file);
+    }
+  }
+  return ownerMap;
 }
 
 function getOwnerMapFromComments(changedFiles) {
@@ -372,15 +370,13 @@ function getOwnerMapFromComments(changedFiles) {
 }
 
 function getChangedFilesOwnerMap(pathOwnerMap, changedFiles) {
-  return new Promise(function ($return, $error) {
-    const ownerMap = {};
-    _underscore2['default'].each(pathOwnerMap, (paths, owner) => {
-      const files = getMatchingFiles(changedFiles, paths);
-      if (files.length === 0) return;
-      ownerMap[owner] = (ownerMap[owner] || []).concat(files);
-    });
-    return $return(ownerMap);
-  }.$asyncbind(this));
+  const ownerMap = {};
+  _underscore2['default'].each(pathOwnerMap, (paths, owner) => {
+    const files = getMatchingFiles(changedFiles, paths);
+    if (files.length === 0) return;
+    ownerMap[owner] = (ownerMap[owner] || []).concat(files);
+  });
+  return ownerMap;
 }
 
 function getMatchingFiles(changedFiles, paths) {

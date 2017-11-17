@@ -2,6 +2,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.appendObjValues = appendObjValues;
+exports.checkError = checkError;
 
 var _underscore = require('underscore');
 
@@ -15,4 +16,10 @@ function appendObjValues(source, target) {
     source[key] = (source[key] || []).concat(values);
   });
   return source;
+}
+
+function checkError(err, msg) {
+  if (!err) return;
+  if (msg) console.error(msg);
+  throw new Error(err);
 }

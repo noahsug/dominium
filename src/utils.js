@@ -7,3 +7,9 @@ export function appendObjValues(source, target) {
   })
   return source
 }
+
+export function checkError(err, msg) {
+  if (!err) return
+  if (msg) console.error(msg)
+  throw new Error(err)
+}

@@ -12,6 +12,8 @@ var _underscore2 = _interopRequireDefault(_underscore);
 
 var _config = require('./config');
 
+var _utils = require('./utils');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 Function.prototype.$asyncbind = function () {
@@ -336,6 +338,7 @@ function getGitInfo() {
   const gitInfo = {};
   return new Promise(resolve => {
     (0, _simpleGit2['default'])(_config.gitPath).raw(['log', '--oneline', '-2'], (err, result) => {
+      (0, _utils.checkError)(err);
       const commits = result.split('\n');
       gitInfo.commits = {
         change: commits[0].split(' ')[0],
@@ -343,6 +346,7 @@ function getGitInfo() {
       };
       gitInfo.commitMsg = commits[0].split(' ').slice(1).join(' ');
     }).revparse(['--abbrev-ref', 'HEAD'], (err, result) => {
+      (0, _utils.checkError)(err);
       gitInfo.branch = result.trim();
     }).exec(() => {
       resolve(gitInfo);
@@ -353,7 +357,7 @@ function getGitInfo() {
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
   checkGitInitCalled();
   return new Promise(resolve => {
-    (0, _simpleGit2['default'])(_config.gitPath).checkoutBranch(getBranchName(branchSuffix), gitInfo.commits.base).checkout([gitInfo.commits.change, ...pr.files]).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix)).exec(resolve);
+    (0, _simpleGit2['default'])(_config.gitPath).checkoutBranch(getBranchName(branchSuffix), gitInfo.commits.base, _utils.checkError).checkout([gitInfo.commits.change, ...pr.files], _utils.checkError).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix), _utils.checkError).exec(resolve);
   });
 }
 
@@ -365,7 +369,7 @@ function checkoutOriginalBranch() {
   return new Promise(function ($return, $error) {
     checkGitInitCalled();
     return $return(new Promise(resolve => {
-      (0, _simpleGit2['default'])(_config.gitPath).checkout(gitInfo.branch).exec(resolve);
+      (0, _simpleGit2['default'])(_config.gitPath).checkout(gitInfo.branch, _utils.checkError).exec(resolve);
     }));
   }.$asyncbind(this));
 }

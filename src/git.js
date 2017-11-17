@@ -1,6 +1,7 @@
 import git from 'simple-git'
 import _ from 'underscore'
 import { gitPath } from './config'
+import { checkError } from './utils'
 
 function getChangedFiles() {
   return new Promise(resolve => {
@@ -21,6 +22,7 @@ function getGitInfo() {
   return new Promise(resolve => {
     git(gitPath)
       .raw(['log', '--oneline', '-2'], (err, result) => {
+        checkError(err)
         const commits = result.split('\n')
         gitInfo.commits = {
           change: commits[0].split(' ')[0],
@@ -32,6 +34,7 @@ function getGitInfo() {
           .join(' ')
       })
       .revparse(['--abbrev-ref', 'HEAD'], (err, result) => {
+        checkError(err)
         gitInfo.branch = result.trim()
       })
       .exec(() => {
@@ -44,9 +47,13 @@ function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
   checkGitInitCalled()
   return new Promise(resolve => {
     git(gitPath)
-      .checkoutBranch(getBranchName(branchSuffix), gitInfo.commits.base)
-      .checkout([gitInfo.commits.change, ...pr.files])
-      .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`)
+      .checkoutBranch(
+        getBranchName(branchSuffix),
+        gitInfo.commits.base,
+        checkError
+      )
+      .checkout([gitInfo.commits.change, ...pr.files], checkError)
+      .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`, checkError)
       .exec(resolve)
   })
 }
@@ -59,7 +66,7 @@ async function checkoutOriginalBranch() {
   checkGitInitCalled()
   return new Promise(resolve => {
     git(gitPath)
-      .checkout(gitInfo.branch)
+      .checkout(gitInfo.branch, checkError)
       .exec(resolve)
   })
 }
