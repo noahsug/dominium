@@ -1,13 +1,13 @@
 import rg from 'ripgrep-js'
 import _ from 'underscore'
-import { appendValues } from './utils'
-import { gitPath, ownerFileName } from './config'
+import { appendObjValues } from './utils'
+import { gitPath, ownerFileName, noOwnerBranchSuffix } from './config'
 
 export default async function getOwnerMap(changedFiles) {
   const ownerMap = {}
-  appendValues(ownerMap, await getOwnerMapFromOwnerFiles(changedFiles))
-  appendValues(ownerMap, await getOwnerMapFromComments(changedFiles))
-  ownerMap['unowned'] = getUnownedFiles(changedFiles, ownerMap)
+  appendObjValues(ownerMap, await getOwnerMapFromOwnerFiles(changedFiles))
+  appendObjValues(ownerMap, await getOwnerMapFromComments(changedFiles))
+  ownerMap[noOwnerBranchSuffix] = getUnownedFiles(changedFiles, ownerMap)
   return ownerMap
 }
 

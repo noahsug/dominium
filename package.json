@@ -1,6 +1,6 @@
 {
   "name": "dominium",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Break large changes into smaller ones based on mandatory reviewer coverage.",
   "repository": {
     "type": "git",
@@ -17,16 +17,17 @@
     "test": "jest src"
   },
   "dependencies": {
+    "cosmiconfig": "^3.1.0",
     "node-fetch-json": "0.0.3",
     "ripgrep-js": "^1.1.0",
     "simple-git": "^1.80.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "yesno": "0.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-airbnb": "^2.4.0",
-    "cosmiconfig": "^3.1.0",
     "fast-async": "^6.3.0",
     "jest": "^21.2.1",
     "rimraf": "^2.6.2"

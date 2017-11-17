@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+var _underscore = require('underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
 var _git = require('./git');
 
 var _git2 = _interopRequireDefault(_git);
@@ -18,6 +22,10 @@ var _getPullRequests2 = _interopRequireDefault(_getPullRequests);
 var _teams = require('./teams');
 
 var _teams2 = _interopRequireDefault(_teams);
+
+var _yesNo = require('./yesNo');
+
+var _yesNo2 = _interopRequireDefault(_yesNo);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -331,8 +339,22 @@ function run() {
           return _teams2['default'].replaceTeamsWithOwners(ownerMap).then(function ($await_8) {
             pullRequests = (0, _getPullRequests2['default'])(ownerMap);
             return _teams2['default'].replaceOwnersWithTeams(pullRequests).then(function ($await_9) {
-              return createBranches(pullRequests).then(function ($await_10) {
-                return $return();
+              printBranches(pullRequests);
+              return _yesNo2['default'].ask('\nProceed?').then(function ($await_10) {
+                if ($await_10) {
+                  return createBranches(pullRequests).then(function ($await_11) {
+                    return _git2['default'].checkoutOriginalBranch().then(function ($await_12) {
+                      return $If_1.call(this);
+                    }.$asyncbind(this, $error), $error);
+                  }.$asyncbind(this, $error), $error);
+                }
+
+                function $If_1() {
+                  process.exit(1);
+                  return $return();
+                }
+
+                return $If_1.call(this);
               }.$asyncbind(this, $error), $error);
             }.$asyncbind(this, $error), $error);
           }.$asyncbind(this, $error), $error);
@@ -342,47 +364,45 @@ function run() {
   }.$asyncbind(this));
 }
 
+function printBranches(pullRequests) {
+  console.log('Splitting code into', pullRequests.length, 'branches:\n');
+  _underscore2['default'].each(pullRequests, (pr, index) => {
+    console.log('  [' + String(_git2['default'].getBranchName(getBranchSuffix(index))) + ']', String(pr.files.length) + ' files', 'owned by ' + String(pr.owners.join(', ')));
+  });
+}
+
 function createBranches(pullRequests) {
   return new Promise(function ($return, $error) {
-    var options;
+    var branchSuffix, commitMsgSuffix;
 
-    console.log('Creating', pullRequests.length, 'branches:');
+    console.log('');
     {
       let i,
           pr,
-          $iterator_i_pr_1 = [pullRequests.entries()[Symbol.iterator]()];return Function.$asyncbind.trampoline(this, $Loop_2_exit, $Loop_2, $error, true)($Loop_2);
+          $iterator_i_pr_2 = [pullRequests.entries()[Symbol.iterator]()];return Function.$asyncbind.trampoline(this, $Loop_3_exit, $Loop_3, $error, true)($Loop_3);
 
-      function $Loop_2() {
-        if (!($iterator_i_pr_1[1] = $iterator_i_pr_1[0].next()).done && (([i, pr] = $iterator_i_pr_1[1].value) || true)) {
-          printBranch(pr, i);
-          options = {
-            branchSuffix: i + 1,
-            commitMsgSuffix: String(i + 1) + '/' + String(pullRequests.length)
-          };
+      function $Loop_3() {
+        if (!($iterator_i_pr_2[1] = $iterator_i_pr_2[0].next()).done && (([i, pr] = $iterator_i_pr_2[1].value) || true)) {
+          branchSuffix = getBranchSuffix(i);
+          commitMsgSuffix = String(i + 1) + '/' + String(pullRequests.length);
 
-          if (!_config2['default'].dryRun) {
-            return _git2['default'].createPrBranch(pr, options).then(function ($await_11) {
-              return $If_4.call(this);
-            }.$asyncbind(this, $error), $error);
-          }
-
-          function $If_4() {
-            return $Loop_2;
-          }
-
-          return $If_4.call(this);
+          console.log('Creating branch', _git2['default'].getBranchName(branchSuffix));
+          return _git2['default'].createPrBranch(pr, { branchSuffix, commitMsgSuffix }).then(function ($await_13) {
+            return $Loop_3;
+          }.$asyncbind(this, $error), $error);
         } else return [1];
       }
     }
 
-    function $Loop_2_exit() {
+    function $Loop_3_exit() {
+      console.log('\nDone');
       return $return();
     }
   }.$asyncbind(this));
 }
 
-function printBranch(pr, index) {
-  console.log('  ' + String(index + 1) + ')', String(pr.files.length) + ' files', 'owned by ' + String(pr.owners.join(', ')));
+function getBranchSuffix(index) {
+  return index + 1;
 }
 
 run();

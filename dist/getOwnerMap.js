@@ -321,10 +321,10 @@ exports['default'] = function () {
       var ownerMap;
       ownerMap = {};
       return getOwnerMapFromOwnerFiles(changedFiles).then(function ($await_1) {
-        (0, _utils.appendValues)(ownerMap, $await_1);
+        (0, _utils.appendObjValues)(ownerMap, $await_1);
         return getOwnerMapFromComments(changedFiles).then(function ($await_2) {
-          (0, _utils.appendValues)(ownerMap, $await_2);
-          ownerMap['unowned'] = getUnownedFiles(changedFiles, ownerMap);
+          (0, _utils.appendObjValues)(ownerMap, $await_2);
+          ownerMap[_config.noOwnerBranchSuffix] = getUnownedFiles(changedFiles, ownerMap);
           return $return(ownerMap);
         }.$asyncbind(this, $error), $error);
       }.$asyncbind(this, $error), $error);

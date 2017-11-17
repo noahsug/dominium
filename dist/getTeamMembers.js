@@ -20,8 +20,6 @@ var _path2 = _interopRequireDefault(_path);
 
 var _config = require('./config');
 
-var _config2 = _interopRequireDefault(_config);
-
 var _github = require('./github');
 
 var _github2 = _interopRequireDefault(_github);
@@ -329,7 +327,7 @@ Function.prototype.$asyncbind = function () {
   return $asyncbind;
 }();
 
-const teamsPath = _path2['default'].resolve(_config2['default'].writePath, 'teams.json');
+const teamsPath = _path2['default'].resolve(_config.gitPath, 'teams.json');
 
 function getTeamMembers(team) {
   return new Promise(function ($return, $error) {
@@ -341,21 +339,17 @@ function getTeamMembers(team) {
 
 const getTeams = (0, _utils.memoize)(() => new Promise(function ($return, $error) {
   let teams;
-
-  if (_config2['default'].noCache) {
-    return writeTeams().then($return, $error);
-  }
   var $Try_1_Post = function () {
     return $return(teams);
   }.$asyncbind(this, $error);var $Try_1_Catch = function (e) {
-    return writeTeams().then(function ($await_6) {
-      teams = $await_6;
+    return writeTeams().then(function ($await_4) {
+      teams = $await_4;
       return $Try_1_Post();
     }.$asyncbind(this, $error), $error);
   }.$asyncbind(this, $error);
   try {
-    return readTeams().then(function ($await_7) {
-      teams = $await_7;
+    return readTeams().then(function ($await_5) {
+      teams = $await_5;
       return $Try_1_Post();
     }.$asyncbind(this, $Try_1_Catch), $Try_1_Catch);
   } catch (e) {
@@ -366,8 +360,8 @@ const getTeams = (0, _utils.memoize)(() => new Promise(function ($return, $error
 function writeTeams() {
   return new Promise(function ($return, $error) {
     var teams;
-    return fetchTeams().then(function ($await_8) {
-      teams = $await_8;
+    return fetchTeams().then(function ($await_6) {
+      teams = $await_6;
 
       return $return(new Promise(resolve => {
         _fs2['default'].writeFile(teamsPath, JSON.stringify(teams), (err, result) => {
@@ -386,22 +380,22 @@ function fetchTeams() {
     teams = {};
 
     page = 1;
-    return getNextTeams(page).then(function ($await_9) {
-      next = $await_9;
-      return Function.$asyncbind.trampoline(this, $Loop_3_exit, $Loop_3, $error, true)($Loop_3);
+    return getNextTeams(page).then(function ($await_7) {
+      next = $await_7;
+      return Function.$asyncbind.trampoline(this, $Loop_2_exit, $Loop_2, $error, true)($Loop_2);
 
-      function $Loop_3() {
+      function $Loop_2() {
         if (!_underscore2['default'].isEmpty(next)) {
           Object.assign(teams, next);
           page += 1;
-          return getNextTeams(page).then(function ($await_10) {
-            next = $await_10;
-            return $Loop_3;
+          return getNextTeams(page).then(function ($await_8) {
+            next = $await_8;
+            return $Loop_2;
           }.$asyncbind(this, $error), $error);
         } else return [1];
       }
 
-      function $Loop_3_exit() {
+      function $Loop_2_exit() {
         return $return(teams);
       }
     }.$asyncbind(this, $error), $error);
@@ -412,8 +406,8 @@ function getNextTeams(page) {
   return new Promise(function ($return, $error) {
     var url, data, teams;
     url = [gitUrl, '/orgs/', org, '/teams', '?per_page=100', '&access_token=' + String(accessToken), '&page=' + String(page)].join('');
-    return (0, _nodeFetchJson2['default'])(url, { method: 'GET' }).then(function ($await_11) {
-      data = $await_11;
+    return (0, _nodeFetchJson2['default'])(url, { method: 'GET' }).then(function ($await_9) {
+      data = $await_9;
       teams = {};
 
       for (const team of data) {

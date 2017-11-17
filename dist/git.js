@@ -351,11 +351,34 @@ function getGitInfo() {
 }
 
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
-  if (_underscore2['default'].isEmpty(gitInfo)) throw new Error('git.init() never called');
+  checkGitInitCalled();
   return new Promise(resolve => {
-    (0, _simpleGit2['default'])(_config.gitPath).checkoutBranch(String(gitInfo.branch) + '-' + String(branchSuffix), gitInfo.commits.base).checkout([gitInfo.commits.change, ...pr.files]).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix)).exec(resolve);
+    (0, _simpleGit2['default'])(_config.gitPath).checkoutBranch(getBranchName(branchSuffix), gitInfo.commits.base).checkout([gitInfo.commits.change, ...pr.files]).commit(String(gitInfo.commitMsg) + ' ' + String(commitMsgSuffix)).exec(resolve);
   });
 }
 
-exports['default'] = { getChangedFiles, createPrBranch, init };
+function getBranchName(suffix) {
+  return String(gitInfo.branch) + '-' + String(suffix);
+}
+
+function checkoutOriginalBranch() {
+  return new Promise(function ($return, $error) {
+    checkGitInitCalled();
+    return $return(new Promise(resolve => {
+      (0, _simpleGit2['default'])(_config.gitPath).checkout(gitInfo.branch).exec(resolve);
+    }));
+  }.$asyncbind(this));
+}
+
+function checkGitInitCalled() {
+  if (_underscore2['default'].isEmpty(gitInfo)) throw new Error('git.init() never called');
+}
+
+exports['default'] = {
+  getChangedFiles,
+  getBranchName,
+  checkoutOriginalBranch,
+  createPrBranch,
+  init
+};
 module.exports = exports['default'];

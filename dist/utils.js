@@ -1,8 +1,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.appendValues = appendValues;
+exports.appendObjValues = appendObjValues;
 exports.memoize = memoize;
+exports.memoizeAsync = memoizeAsync;
 exports.isAsync = isAsync;
 
 var _underscore = require('underscore');
@@ -310,38 +311,43 @@ Function.prototype.$asyncbind = function () {
   return $asyncbind;
 }();
 
-function appendValues(source, target) {
+// Usage: appendValues({a: [1, 2]}, {a: [3], b: [4]}) -> {a: [1, 2, 3], b: [4]}
+function appendObjValues(source, target) {
   _underscore2['default'].each(target, (values, key) => {
     source[key] = (source[key] || []).concat(values);
   });
+  return source;
 }
 
+// Note: Does not work when the function returns a promise.
 function memoize(fn) {
+  if (isAsync(fn)) return memoizeAsync(fn);
   const cache = {};
-  if (isAsync(fn)) {
-    return (...args) => new Promise(function ($return, $error) {
-      var key;
-      key = JSON.stringify(args);
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache[key]) cache[key] = fn(...args);
+    return cache[key];
+  };
+}
 
-      if (!cache[key]) {
-        return fn(...args).then(function ($await_2) {
-          cache[key] = $await_2;
-          return $If_1.call(this);
-        }.$asyncbind(this, $error), $error);
-      }
-      function $If_1() {
-        return $return(cache[key]);
-      }
+function memoizeAsync(fn) {
+  const cache = {};
+  return (...args) => new Promise(function ($return, $error) {
+    var key;
+    key = JSON.stringify(args);
 
-      return $If_1.call(this);
-    }.$asyncbind(this));
-  } else {
-    return (...args) => {
-      const key = JSON.stringify(args);
-      if (!cache[key]) cache[key] = fn(...args);
-      return cache[key];
-    };
-  }
+    if (!cache[key]) {
+      return fn(...args).then(function ($await_2) {
+        cache[key] = $await_2;
+        return $If_1.call(this);
+      }.$asyncbind(this, $error), $error);
+    }
+    function $If_1() {
+      return $return(cache[key]);
+    }
+
+    return $If_1.call(this);
+  }.$asyncbind(this));
 }
 
 // Does not work for promises.

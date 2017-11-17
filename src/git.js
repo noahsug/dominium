@@ -41,14 +41,37 @@ function getGitInfo() {
 }
 
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
-  if (_.isEmpty(gitInfo)) throw new Error('git.init() never called')
+  checkGitInitCalled()
   return new Promise(resolve => {
     git(gitPath)
-      .checkoutBranch(`${gitInfo.branch}-${branchSuffix}`, gitInfo.commits.base)
+      .checkoutBranch(getBranchName(branchSuffix), gitInfo.commits.base)
       .checkout([gitInfo.commits.change, ...pr.files])
       .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`)
       .exec(resolve)
   })
 }
 
-export default { getChangedFiles, createPrBranch, init }
+function getBranchName(suffix) {
+  return `${gitInfo.branch}-${suffix}`
+}
+
+async function checkoutOriginalBranch() {
+  checkGitInitCalled()
+  return new Promise(resolve => {
+    git(gitPath)
+      .checkout(gitInfo.branch)
+      .exec(resolve)
+  })
+}
+
+function checkGitInitCalled() {
+  if (_.isEmpty(gitInfo)) throw new Error('git.init() never called')
+}
+
+export default {
+  getChangedFiles,
+  getBranchName,
+  checkoutOriginalBranch,
+  createPrBranch,
+  init,
+}

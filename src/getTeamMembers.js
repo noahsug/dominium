@@ -2,11 +2,11 @@ import fetch from 'node-fetch-json'
 import _ from 'underscore'
 import fs from 'fs'
 import path from 'path'
-import config from './config'
+import { gitPath } from './config'
 import github from './github'
 import { memoize } from './utils'
 
-const teamsPath = path.resolve(config.writePath, 'teams.json')
+const teamsPath = path.resolve(gitPath, 'teams.json')
 
 async function getTeamMembers(team) {
   // const teams = await getTeams()
@@ -14,7 +14,6 @@ async function getTeamMembers(team) {
 }
 
 const getTeams = memoize(async () => {
-  if (config.noCache) return await writeTeams()
   let teams
   try {
     teams = await readTeams()

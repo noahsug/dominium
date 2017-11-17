@@ -1,9 +1,9 @@
 export default {
-  gitPath: 'git/path',
-  writePath: 'write/path',
-  dryRun: false,
-  noCache: false,
   ownerFileName: 'MANDATORY_REVIEWERS',
+  ownerCommentTag: 'MANDATORY_REVIEWERS',
+  noOwnerBranchSuffix: 'unowned',
+  accessToken: '1234',
   teamPrefix: 'ATeam/',
-  noOwnerBranchName: 'unowned',
+  gitApiUrl: 'github.com/api/v3/',
+  gitPath: 'git/path',
 }

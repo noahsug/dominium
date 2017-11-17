@@ -6,20 +6,24 @@ var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
 
+var _cosmiconfig = require('cosmiconfig');
+
+var _cosmiconfig2 = _interopRequireDefault(_cosmiconfig);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+const explorer = (0, _cosmiconfig2['default'])('dominium', { sync: true });
+const loadedConfig = (explorer.load('.') || { config: {} }).config;
 const args = process.argv.slice(2);
 
 const config = {
-  gitPath: process.cwd(),
-  writePath: _path2['default'].resolve(process.argv[1], '../'),
-  dryRun: args.includes('--dryrun'),
-  noCache: args.includes('--no-cache'),
-  ownerFileName: 'MANDATORY_REVIEWERS',
-  teamPrefix: 'airbnb/',
-  noOwnerBranchName: 'unowned',
-  gitApiUrl: 'https://git.musta.ch/api/v3',
-  accessToken: process.env.AUTH_TOKEN
+  ownerFileName: loadedConfig.ownerFileName || 'MANDATORY_REVIEWERS',
+  ownerCommentTag: loadedConfig.ownerCommentTag || 'MANDATORY_REVIEWERS',
+  noOwnerBranchSuffix: loadedConfig.noOwnerBranchSuffix || 'unowned',
+  accessToken: loadedConfig.accessToken || process.env.AUTH_TOKEN,
+  teamPrefix: loadedConfig.teamPrefix || '',
+  gitApiUrl: loadedConfig.gitApiUrl,
+  gitPath: process.cwd()
 };
 
 exports['default'] = config;
