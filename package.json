@@ -1,7 +1,9 @@
 {
   "name": "dominium",
   "version": "0.1.0",
+  "author": "Noah Sugarman <noahsug@gmail.com>",
   "description": "Break large changes into smaller ones based on mandatory reviewer coverage.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/noahsug/dominium.git"
