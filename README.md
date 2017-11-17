@@ -2,17 +2,17 @@
 
 > Break large changes into smaller ones based on mandatory reviewer coverage.
 
-## Install
+### Install
 
 1) `npm i -g dominium`
 2) Dominium uses ripgrep, so you'll need to isntall that as well if you haven't already (also stop using grep): https://github.com/BurntSushi/ripgrep#installation
 
 
-## Usage
+### Usage
 
-Run `dominium` in the root of your repo after creating your commit.
+Run `dominium` in the root of your repo after creating a large commit.
 
-**Note:** dominium will use your commit message and branch name.
+**Note:** dominium will use your commit message and branch name when creating new branches.
 
 ```
 ~/myGitRepo[eslint-fix] $ git commit -am "eslint --fix accross entire codebase"
@@ -37,20 +37,18 @@ Done
 ```
 
 
-## Options
+### Options
 
-This project uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig), so you can provide config via:
-* a `.dominiumrc` JSON file
-* a `dominium.config.js` JS file
-* a `dominium` property in your `package.json`
-
-
-In `.dominiumrc`
-```json
+Provide config via a `.dominiumrc` JSON file in the root of your git repo
+```
 {
   "ownersFileName": "OWNERS"  // Default "MANDATORY_REVIEWERS"
 }
 ```
+
+This project uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig), so you can also use:
+* a `dominium.config.js` JS file
+* a `dominium` property in your `package.json`
 
 
 ## Limitations / TODOs
