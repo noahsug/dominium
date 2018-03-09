@@ -1,7 +1,7 @@
-import rg from 'ripgrep-js'
 import _ from 'underscore'
-import { appendObjValues, checkError } from './utils'
-import { gitPath, ownersFileName } from './config'
+import { appendObjValues, logError } from './utils'
+import { findFiles } from './search'
+import config from './config'
 
 export default async function getOwnerMap(changedFiles) {
   const ownerMap = {}
@@ -17,24 +17,20 @@ async function getOwnerMapFromOwnerFiles(changedFiles) {
 }
 
 function getOwnerFileOwnerMap() {
-  return rg(gitPath, { regex: '.', globs: [ownersFileName] })
+  return findFiles(config.gitPath, config.ownersFileName)
     .then(parseOwnersFiles)
-    .catch(e => {
-      checkError(
-        e,
-        'Error: ripgrep not installed. Please install from https://github.com/BurntSushi/ripgrep#installation'
-      )
-    })
+    .catch(logError)
 }
 
 function parseOwnersFiles(ownersFiles) {
   const ownerMap = {}
   for (const result of ownersFiles) {
     const owners = result.match
-      .replace(/(\s|,)+/, ' ')
+      .replace(/(\s|,)+/g, ' ')
       .trim()
       .split(/\s/)
-    const file = result.file.replace(ownersFileName, '')
+    console.log(result.match, '->', owners)
+    const file = result.file.replace(config.ownersFileName, '')
     for (const owner of owners) {
       ownerMap[owner] = (ownerMap[owner] || []).concat(file)
     }

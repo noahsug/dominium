@@ -1,11 +1,11 @@
 import getOwnerMap from './getOwnerMap'
 import rg from 'ripgrep-js'
-import { ownersFileName } from './config'
+import config from './config'
 
 test('reads owners from owners files', async () => {
   rg.__setMockResults([
-    { match: 'Al Bob Clare', file: `src/a/${ownersFileName}` },
-    { match: 'Clare', file: `src/b/${ownersFileName}` },
+    { match: 'Al Bob Clare', file: `src/a/${config.ownersFileName}` },
+    { match: 'Clare', file: `src/b/${config.ownersFileName}` },
   ])
   const changedFiles = ['src/a/f1', 'src/a/aa/f2', 'src/b/f1', 'src/c/f1']
   const ownerMap = await getOwnerMap(changedFiles)

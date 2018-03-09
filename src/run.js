@@ -1,13 +1,12 @@
-#!/usr/bin/env node
-
 import _ from 'underscore'
 import git from './git'
-import config from './config'
 import getOwnerMap from './getOwnerMap'
 import getPullRequests from './getPullRequests'
+import config, { checkConfig } from './config'
 import yesNo from './yesNo'
 
 async function run() {
+  checkConfig()
   await git.init()
   const changedFiles = await git.getChangedFiles()
   const ownerMap = await getOwnerMap(changedFiles)
@@ -46,4 +45,4 @@ function getBranchSuffix(index) {
   return index + 1
 }
 
-run()
+export default run

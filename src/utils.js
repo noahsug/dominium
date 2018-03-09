@@ -8,8 +8,13 @@ export function appendObjValues(source, target) {
   return source
 }
 
-export function checkError(err, msg) {
+export function logError(err, msg) {
   if (!err) return
   if (msg) console.error(msg)
-  throw new Error(err)
+  console.error(err.message, '\n')
+  throw err
+}
+
+export function clone(obj) {
+  return JSON.parse(JSON.stringify(obj))
 }

@@ -10,7 +10,7 @@
 
 ### Usage
 
-Run `dominium` in the root of your repo after creating a large commit.
+Run `dominium` in the root of your repo after commiting a large change.
 
 **Note:** dominium will use your commit message and branch name when creating new branches.
 
@@ -39,19 +39,13 @@ Done
 
 ### Options
 
-Provide config via a `.dominiumrc` JSON file in the root of your git repo
-```
-{
-  "ownersFileName": "OWNERS"  // Default "MANDATORY_REVIEWERS"
-}
-```
+`--owners-file [name]` name of file containing list of owners, default `MANDATORY_REVIEWERS`
 
-This project uses [cosmiconfig](https://github.com/davidtheclark/cosmiconfig), so you can also use:
-* a `dominium.config.js` JS file
-* a `dominium` property in your `package.json`
+`--max-branch-files [max]` max number of files per branch, default `Infinity`
 
 
-## Limitations / TODOs
+### Limitations / TODOs
+
 * Doesn't read file comments such as `// MANDATORY_REVIEWERS noah bob`.
 * Unhelpful error messages.
 * Only supports git repos.

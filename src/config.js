@@ -1,14 +1,19 @@
-import path from 'path'
-import cosmiconfig from 'cosmiconfig'
-
-const explorer = cosmiconfig('dominium', { sync: true })
-const loadedConfig = (explorer.load('.') || { config: {} }).config
-const args = process.argv.slice(2)
-
 const config = {
-  ownersFileName: loadedConfig.ownersFileName || 'MANDATORY_REVIEWERS',
-  ownersCommentTag: loadedConfig.ownersCommentTag || 'MANDATORY_REVIEWERS',
-  gitPath: process.cwd(),
+  ownersFileName: 'MANDATORY_REVIEWERS',
+  maxFiles: Infinity,
+  gitPath: undefined,
 }
 
+function setConfig(options) {
+  Object.keys(config).forEach(key => {
+    if (options[key] === undefined) return
+    config[key] = options[key]
+  })
+}
+
+function checkConfig() {
+  if (!config.gitPath) throw new Error('git path not specified')
+}
+
+export { setConfig, checkConfig }
 export default config

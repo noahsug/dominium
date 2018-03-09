@@ -1,11 +1,11 @@
 import git from 'simple-git'
 import _ from 'underscore'
-import { gitPath } from './config'
-import { checkError } from './utils'
+import config from './config'
+import { logError } from './utils'
 
 function getChangedFiles() {
   return new Promise(resolve => {
-    git(gitPath).show(['--oneline', '--name-only'], (err, result) => {
+    git(config.gitPath).show(['--oneline', '--name-only'], (err, result) => {
       resolve(result.split('\n').slice(1, -1))
     })
   })
@@ -20,9 +20,9 @@ async function init() {
 function getGitInfo() {
   const gitInfo = {}
   return new Promise(resolve => {
-    git(gitPath)
+    git(config.gitPath)
       .raw(['log', '--oneline', '-2'], (err, result) => {
-        checkError(err)
+        logError(err)
         const commits = result.split('\n')
         gitInfo.commits = {
           change: commits[0].split(' ')[0],
@@ -34,7 +34,7 @@ function getGitInfo() {
           .join(' ')
       })
       .revparse(['--abbrev-ref', 'HEAD'], (err, result) => {
-        checkError(err)
+        logError(err)
         gitInfo.branch = result.trim()
       })
       .exec(() => {
@@ -46,14 +46,14 @@ function getGitInfo() {
 function createPrBranch(pr, { branchSuffix, commitMsgSuffix = '' }) {
   checkGitInitCalled()
   return new Promise(resolve => {
-    git(gitPath)
+    git(config.gitPath)
       .checkoutBranch(
         getBranchName(branchSuffix),
         gitInfo.commits.base,
-        checkError
+        logError
       )
-      .checkout([gitInfo.commits.change, ...pr.files], checkError)
-      .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`, checkError)
+      .checkout([gitInfo.commits.change, ...pr.files], logError)
+      .commit(`${gitInfo.commitMsg} ${commitMsgSuffix}`, logError)
       .exec(resolve)
   })
 }
@@ -65,8 +65,8 @@ function getBranchName(suffix) {
 async function checkoutOriginalBranch() {
   checkGitInitCalled()
   return new Promise(resolve => {
-    git(gitPath)
-      .checkout(gitInfo.branch, checkError)
+    git(config.gitPath)
+      .checkout(gitInfo.branch, logError)
       .exec(resolve)
   })
 }

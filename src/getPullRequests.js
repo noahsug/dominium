@@ -1,11 +1,21 @@
 import _ from 'underscore'
+import config from './config'
+import { clone } from './utils'
 
 export default function getPullRequests(ownerMap) {
-  let prs = getBestCoveragePrs(ownerMap)
-  removeFiles(ownerMap, getFiles(prs))
-  addSingleOwnerCoveredFiles(prs, ownerMap)
-  removeFiles(ownerMap, getFiles(prs))
-  return prs.concat(getAnyCoveragePrs(ownerMap))
+  const unclaimedOwnerMap = clone(ownerMap)
+  // Get PRs such that each is covered by at least two owners.
+  const prs = getBestCoveragePrs(unclaimedOwnerMap)
+  removeFiles(unclaimedOwnerMap, getFiles(prs))
+  // Add files to existing PRs that are covered by an owner.
+  addSingleOwnerCoveredFiles(prs, unclaimedOwnerMap)
+  removeFiles(unclaimedOwnerMap, getFiles(prs))
+  // Get remaining PRs.
+  prs.push(...getAnyCoveragePrs(unclaimedOwnerMap))
+  // Split PRs that are over the max file limit.
+  splitPrsByMaxFileLimit(prs, ownerMap)
+
+  return prs
 }
 
 function getBestCoveragePrs(ownerMap) {
@@ -14,8 +24,8 @@ function getBestCoveragePrs(ownerMap) {
   let ownerPair = getBestOwner(pairOwnerMap)
   while (ownerPair) {
     const files = pairOwnerMap[ownerPair]
-    if (files.length === 1) break
-    const owners = getOwners(ownerMap, files)
+    if (files.length <= 1) break
+    const owners = getOwners(files, ownerMap)
     prs.push({ owners, files })
     removeFiles(pairOwnerMap, files)
     ownerPair = getBestOwner(pairOwnerMap)
@@ -45,14 +55,14 @@ function getOwnerPairs(owners) {
 
 function addSingleOwnerCoveredFiles(prs, ownerMap) {
   const ownersInPrs = _.unique(_.flatten(prs.map(pr => pr.owners)))
-  const prOwnerOwnerMap = _.pick(ownerMap, ...ownersInPrs)
-  let owner = getBestOwner(prOwnerOwnerMap)
+  const prOwnerMap = _.pick(ownerMap, ...ownersInPrs)
+  let owner = getBestOwner(prOwnerMap)
   while (owner) {
     const pr = prs.find(pr => pr.owners.includes(owner))
-    if (!pr) break
-    pr.files = pr.files.concat(prOwnerOwnerMap[owner])
-    removeFiles(prOwnerOwnerMap, prOwnerOwnerMap[owner])
-    owner = getBestOwner(prOwnerOwnerMap)
+    if (!pr) break // should never happen?
+    pr.files = pr.files.concat(prOwnerMap[owner])
+    removeFiles(prOwnerMap, prOwnerMap[owner])
+    owner = getBestOwner(prOwnerMap)
   }
 }
 
@@ -61,7 +71,7 @@ function getAnyCoveragePrs(ownerMap) {
   let owner = getBestOwner(ownerMap)
   while (owner) {
     const files = ownerMap[owner]
-    const owners = getOwners(ownerMap, files)
+    const owners = getOwners(files, ownerMap)
     prs.push({ owners, files })
     removeFiles(ownerMap, files)
     owner = getBestOwner(ownerMap)
@@ -75,15 +85,6 @@ function getBestOwner(ownerMap) {
   return _.max(owners, owner => ownerMap[owner].length)
 }
 
-function getOwners(ownerMap, files) {
-  let owners = []
-  _.each(ownerMap, (ownedFiles, owner) => {
-    const coverFiles = files.every(f => ownedFiles.includes(f))
-    if (coverFiles) owners.push(owner)
-  })
-  return owners
-}
-
 function removeFiles(ownerMap, files) {
   const owners = Object.keys(ownerMap)
   owners.forEach(owner => {
@@ -94,6 +95,38 @@ function removeFiles(ownerMap, files) {
       delete ownerMap[owner]
     }
   })
+}
+
+function splitPrsByMaxFileLimit(prs, ownerMap) {
+  for (let i = 0; i < prs.length; i++) {
+    const pr = prs[i]
+    if (pr.files.length <= config.maxFiles) continue
+    const split = splitPr(pr, ownerMap)
+    prs.splice(i, 1, ...split)
+    i += split.length - 1
+  }
+}
+
+function splitPr(pr, ownerMap) {
+  const split = []
+  const files = pr.files
+  const numSplits = Math.ceil(files.length / config.maxFiles)
+  const filesPerSplit = Math.round(config.maxFiles / numSplits)
+  for (let i = 0; i < numSplits; i++) {
+    const filesToAdd = files.slice(i * filesPerSplit, (i + 1) * filesPerSplit)
+    const ownersToAdd = getOwners(filesToAdd, ownerMap)
+    split.push({ files: filesToAdd, owners: ownersToAdd })
+  }
+  return split
+}
+
+function getOwners(files, ownerMap) {
+  let owners = []
+  _.each(ownerMap, (ownedFiles, owner) => {
+    const coverFiles = files.every(f => ownedFiles.includes(f))
+    if (coverFiles) owners.push(owner)
+  })
+  return owners
 }
 
 function getFiles(prs) {

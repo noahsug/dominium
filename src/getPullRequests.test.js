@@ -1,6 +1,11 @@
+import _ from 'underscore'
 import getPullRequests from './getPullRequests'
+import config from './config'
 
-function prsAreEqual(actualPrs, expectedPrs) {
+function prsEqual(actualPrs, expectedPrs) {
+  expectedPrs = _.sortBy(expectedPrs, pr => pr.owners.join(','))
+  actualPrs = _.sortBy(actualPrs, pr => pr.owners.join(','))
+
   expect(actualPrs.length).toBe(expectedPrs.length)
   actualPrs.forEach((actual, i) => {
     const expected = expectedPrs[i]
@@ -9,6 +14,19 @@ function prsAreEqual(actualPrs, expectedPrs) {
   })
 }
 
+test('splits PRs by owner', () => {
+  const prs = getPullRequests({
+    A: ['1', '2'],
+    B: ['3', '4', '5'],
+    C: ['6', '7', '8', '9'],
+  })
+  prsEqual(prs, [
+    { owners: ['A'], files: ['1', '2'] },
+    { owners: ['B'], files: ['3', '4', '5'] },
+    { owners: ['C'], files: ['6', '7', '8', '9'] },
+  ])
+})
+
 test('gets 1 prs when covered by 1 group of 2+ owners', () => {
   const prs = getPullRequests({
     A: ['1', '2'],
@@ -16,7 +34,7 @@ test('gets 1 prs when covered by 1 group of 2+ owners', () => {
     C: ['1', '2', '3'],
     D: ['3'],
   })
-  prsAreEqual(prs, [{ owners: ['B', 'C'], files: ['1', '2', '3'] }])
+  prsEqual(prs, [{ owners: ['B', 'C'], files: ['1', '2', '3'] }])
 })
 
 test('gets 2 prs when covered by 2 groups of 2+ owners', () => {
@@ -26,7 +44,7 @@ test('gets 2 prs when covered by 2 groups of 2+ owners', () => {
     C: ['3', '4'],
     D: ['4'],
   })
-  prsAreEqual(prs, [
+  prsEqual(prs, [
     { owners: ['A', 'B'], files: ['1', '2'] },
     { owners: ['B', 'C'], files: ['3', '4'] },
   ])
@@ -38,7 +56,7 @@ test('reduces # of prs by adding remaining files from single owner', () => {
     B: ['4'],
     C: ['1', '2', '3', '4', '5'],
   })
-  prsAreEqual(prs, [{ owners: ['A', 'C'], files: ['1', '2', '3', '4', '5'] }])
+  prsEqual(prs, [{ owners: ['A', 'C'], files: ['1', '2', '3', '4', '5'] }])
 })
 
 test('covers all files', () => {
@@ -47,7 +65,7 @@ test('covers all files', () => {
     B: ['3', '4', '5'],
     C: ['5', '6'],
   })
-  prsAreEqual(prs, [
+  prsEqual(prs, [
     { owners: ['A'], files: ['1', '2', '3'] },
     { owners: ['B'], files: ['4', '5'] },
     { owners: ['C'], files: ['6'] },
@@ -62,9 +80,28 @@ test('correctly assigns owners', () => {
     D: ['6'],
     E: ['6'],
   })
-  prsAreEqual(prs, [
+  prsEqual(prs, [
     { owners: ['A'], files: ['1', '2', '3'] },
     { owners: ['B'], files: ['4', '5'] },
     { owners: ['D', 'E'], files: ['6'] },
   ])
+})
+
+test('splits prs that are over max file limit', () => {
+  const initial = config.maxFiles
+  config.maxFiles = 3
+
+  const prs = getPullRequests({
+    A: ['1', '2'],
+    B: ['3', '4', '5'],
+    C: ['6', '7', '8', '9'],
+  })
+  prsEqual(prs, [
+    { owners: ['A'], files: ['1', '2'] },
+    { owners: ['B'], files: ['3', '4', '5'] },
+    { owners: ['C'], files: ['6', '7'] },
+    { owners: ['C'], files: ['8', '9'] },
+  ])
+
+  config.maxFiles = initial
 })

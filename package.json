@@ -8,21 +8,22 @@
     "type": "git",
     "url": "https://github.com/noahsug/dominium.git"
   },
-  "main": "dist/index.js",
+  "main": "dist/cli.js",
   "bin": {
-    "dominium": "dist/index.js"
+    "dominium": "dist/cli.js"
   },
   "scripts": {
     "build": "npm run clean && BABEL_ENV=production babel src --out-dir dist",
     "start": "npm run build -- --watch",
     "clean": "rimraf dist",
-    "test": "jest src"
+    "test": "jest src",
+    "prepare": "npm run build"
   },
   "dependencies": {
-    "cosmiconfig": "^3.1.0",
     "node-fetch-json": "0.0.3",
+    "program": "^1.0.0",
     "ripgrep-js": "^1.1.0",
-    "simple-git": "^1.80.1",
+    "simple-git": "^1.92.0",
     "underscore": "^1.8.3",
     "yesno": "0.0.1"
   },
@@ -30,8 +31,8 @@
     "babel-cli": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-airbnb": "^2.4.0",
-    "fast-async": "^6.3.0",
-    "jest": "^21.2.1",
+    "fast-async": "^6.3.1",
+    "jest": "^22.4.2",
     "rimraf": "^2.6.2"
   }
 }
