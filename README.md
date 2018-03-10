@@ -5,18 +5,16 @@
 ### Install
 
 1) `npm i -g dominium`
-2) Dominium uses ripgrep, so you'll need to isntall that as well if you haven't already (also stop using grep): https://github.com/BurntSushi/ripgrep#installation
+2) Install [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
 
 
 ### Usage
 
-Run `dominium` in the root of your repo after commiting a large change.
+Run `dominium` in the root of your git repo to split up your last commit. Your commit message and branch name are used when creating new branches.
 
-**Note:** dominium will use your commit message and branch name when creating new branches.
-
-```
-~/myGitRepo[eslint-fix] $ git commit -am "eslint --fix accross entire codebase"
-~/myGitRepo[eslint-fix] $ dominium
+```sh
+~/myGitRepo[eslint-fix]$ git commit -am "eslint --fix accross entire codebase"
+~/myGitRepo[eslint-fix]$ dominium
 Splitting code into 4 branches:
 
   [eslint-fix-1] 12 files owned by noah.sugarman, airbnb/someteam
@@ -32,7 +30,7 @@ Creating branch eslint-fix-3
 Creating branch eslint-fix-4
 
 Done
-~/myGitRepo[eslint-fix] $ git log eslint-fix-1 --oneline -1
+~/myGitRepo[eslint-fix]$ git log eslint-fix-1 --oneline -1
 7c89b7bb5bd eslint --fix accross entire codebase 1/4
 ```
 
