@@ -29,7 +29,6 @@ function parseOwnersFiles(ownersFiles) {
       .replace(/(\s|,)+/g, ' ')
       .trim()
       .split(/\s/)
-    console.log(result.match, '->', owners)
     const file = result.file.replace(config.ownersFileName, '')
     for (const owner of owners) {
       ownerMap[owner] = (ownerMap[owner] || []).concat(file)
