@@ -7,8 +7,11 @@ import run from './run'
 
 program
   .version(version)
-  .option('--owners-file [name]', 'name of file containing list of owners')
-  .option('--max-files [max]', 'max number of files per branch')
+  .option(
+    '--owners-file',
+    `name of file containing list of owners, default 'MANDATORY_REVIEWERS'`
+  )
+  .option('--max-files', 'max number of files per branch, default Infinity')
   .parse(process.argv)
 
 setConfig({
