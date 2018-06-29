@@ -8,16 +8,16 @@
     "type": "git",
     "url": "https://github.com/noahsug/dominium.git"
   },
-  "main": "src/run.js",
+  "main": "./src/run.js",
   "bin": {
-    "dominium": "dist/cli.js"
+    "dominium": "./dist/cli.js"
   },
   "scripts": {
     "build": "npm run clean && BABEL_ENV=production babel src --out-dir dist",
     "start": "npm run build -- --watch",
     "clean": "rimraf dist",
     "test": "jest src",
-    "postinstall": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "commander": "^2.15.1",
