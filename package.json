@@ -1,6 +1,6 @@
 {
   "name": "dominium",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "author": "Noah Sugarman <noahsug@gmail.com>",
   "description": "Break large changes into smaller ones based on mandatory reviewer coverage.",
   "license": "MIT",
