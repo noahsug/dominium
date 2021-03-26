@@ -13,7 +13,7 @@
 Run `dominium` in the root of your git repo to split up your last commit. Your commit message and branch name are used when creating new branches.
 
 ```sh
-~/myGitRepo[eslint-fix]$ git commit -am "eslint --fix accross entire codebase"
+~/myGitRepo[eslint-fix]$ git commit -am "eslint --fix across entire codebase"
 ~/myGitRepo[eslint-fix]$ dominium
 Splitting code into 4 branches:
 
